@@ -1,0 +1,20 @@
+server:
+  port: 8088
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8088/eureka
+    register-with-eureka: false
+    fetch-registry: false
+spring:
+  application:
+    #服务名称 - 服务之间使用名称进行通讯
+    name: service-demands
+    #数据库信息
+  datasource:
+    name: test
+    url: jdbc:oscar://172.19.9.254:2003/XQCHPT?serverTimezone=UTC
+    username: sysdba
+    password: szoscar55
+    #   使用druid数据源
+    driver-class-name: com.oscar.Driver

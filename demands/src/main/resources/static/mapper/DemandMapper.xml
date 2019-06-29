@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cetc.plan.demand.dao.DemandMapper">
+
+
+    <!--  获取重点目标库的信息  -->
+    <select id="selectPageCoretarge" resultType="com.cetc.plan.demand.model.CoretargetEntity">
+        select  ZDMBBH  as "zdmbbh",
+                ZDMBMC  as "zdmbmc",
+                MBLX    as "mblx",
+                GJDQ    as "gjdq",
+                DWLX    as "dwlx",
+                RKSJ    as "rksj"
+        from
+                XQCH_ZDMBK XZ
+        <where>
+            <if test="zdmbmc  != null and zdmbmc != ''">
+                XZ.ZDMBMC like '%'+#{zdmbmc}+'%'
+                OR XZ.GJDQ like '%'+#{zdmbmc}+'%'
+            </if>
+        </where>
+        ORDER BY
+                XZ.ZDMBMC
+    </select>
+    <!--  查询重点目标库所有国家信息  -->
+    <select id="selectAllCountries" resultType="java.lang.String">
+        select distinct GJDQ as "gjdq" FROM XQCH_ZDMBK ORDER BY GJDQ
+    </select>
+
+    <!--  根据国家名称查询其城市区域  -->
+    <select id="selectTargetByName" resultType="com.cetc.plan.demand.model.CoretargetEntity">
+        select  ZDMBBH  as "zdmbbh",
+                ZDMBMC  as "zdmbmc",
+                MBLX    as "mblx",
+                GJDQ    as "gjdq",
+                DWLX    as "dwlx",
+                RKSJ    as "rksj"
+        from
+                XQCH_ZDMBK XZ
+        <where>
+            <if test="gjdq  != null and gjdq != ''">
+                XZ.GJDQ = #{gjdq}
+            </if>
+        </where>
+    </select>
+    <!--  根据需求编号查询需求  -->
+    <select id="selectDemandByXqbh"  resultType="com.cetc.plan.demand.model.DemandEntity">
+        select  XQBH    as "xqbh",
+                XQBSH   as "xqbsh",
+                XQMC    as "xqmc",
+                RWLX    as "rwlx",
+                YXQKSSJ as "yxqkssj",
+                YXQJSSJ as "yxqjssj",
+                YXJ     as "yxj",
+                XQZW    as "xqzw",
+                LY      as "ly",
+                GCPC    as "gcpc",
+                WJNR    as "wjnr",
+                RKSJ    as "rksj"
+        from
+            XQCH_XQXX XX
+        where
+            XX.XQBH = #{xqbh}
+    </select>
+    <!--  查询星地资源卫星代号  -->
+    <select id="getSatelliteInfos" resultType="java.util.Map">
+         SELECT
+                WXBS AS "id", WXMC AS "name" ,WXYT AS "satelliteType"
+        FROM    XDZY_WX
+    </select>
+    <!--  查询重点目标库坐标信息 leftLng
+leftLat
+rightLng
+rightLat  -->
+    <select id="getAreaTarget" resultType="com.cetc.plan.demand.model.CoretargetEntity">
+        select  XZ.ZDMBBH   as "zdmbbh",
+                XZMB.ZBDXH   as "zbdxh",
+                XZMB.JD      as "jd",
+                XZMB.WD      as "wd",
+                XZMB.BJ      as "bj",
+                XZMB.SJ      as "sj",
+                XZMB.HX      as "hx",
+                XZMB.HS      as "hs",
+                XZ.ZDMBMC    as "zdmbmc",
+                XZ.MBLX      as "mblx",
+                XZ.GJDQ      as "gjdq",
+                XZ.RKSJ      as "rksj",
+                XZ.DWLX      as "dwlx"
+        from   XQCH_ZDMBK XZ
+        left join XQCH_ZDMBK_MBZBXX XZMB on XZ.ZDMBBH = XZMB.ZDMBBH
+        <where>
+            <if test="leftLng != null and leftLng != '' and leftLat != null and leftLat != ''
+                and rightLng != null and rightLng != '' and rightLat != null and rightLat != ''" >
+                XZMB.jd &gt;= #{leftLng} and XZMB.jd &lt;= #{rightLng}
+                and XZMB.wd >= #{leftLat} and XZMB.wd &lt;= #{rightLat}
+            </if>
+        </where>
+    </select>
+    <!--  保存需求录入信息  -->
+    <insert id="saveDemand" parameterType="com.cetc.plan.demand.model.DemandEntity">
+        insert into
+            XQCH_XQXX (XQBH,XQBSH,XQMC,RWLX,YXQKSSJ,YXQJSSJ,YXJ,XQZW,LY,GCPC,WJNR,RKSJ)
+        values
+            ( #{demandEntity.xqbh},
+            #{demandEntity.xqbsh},
+            #{demandEntity.xqmc},
+            #{demandEntity.rwlx},
+            #{demandEntity.yxqkssj},
+            #{demandEntity.yxqjssj},
+            #{demandEntity.yxj},
+            #{demandEntity.xqzw},
+            #{demandEntity.ly},
+            #{demandEntity.gcpc},
+            #{demandEntity.wjnr},
+            now())
+    </insert>
+
+</mapper>
