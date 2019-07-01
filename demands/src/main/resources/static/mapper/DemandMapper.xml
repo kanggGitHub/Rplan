@@ -65,13 +65,10 @@
     <!--  查询星地资源卫星代号  -->
     <select id="getSatelliteInfos" resultType="java.util.Map">
          SELECT
-                WXBS AS "id", WXMC AS "name" ,WXYT AS "satelliteType"
+                WXBS AS "wxbs", WXMC AS "wxmc" ,WXYT AS "wxyt"
         FROM    XDZY_WX
     </select>
-    <!--  查询重点目标库坐标信息 leftLng
-leftLat
-rightLng
-rightLat  -->
+    <!--  查询重点目标库坐标信息  -->
     <select id="getAreaTarget" resultType="com.cetc.plan.demand.model.CoretargetEntity">
         select  XZ.ZDMBBH   as "zdmbbh",
                 XZMB.ZBDXH   as "zbdxh",
@@ -99,20 +96,38 @@ rightLat  -->
     <!--  保存需求录入信息  -->
     <insert id="saveDemand" parameterType="com.cetc.plan.demand.model.DemandEntity">
         insert into
-            XQCH_XQXX (XQBH,XQBSH,XQMC,RWLX,YXQKSSJ,YXQJSSJ,YXJ,XQZW,LY,GCPC,WJNR,RKSJ)
+            XQCH_XQXX (XQBH,XQBSH,XQMC,RWLX,YXQKSSJ,YXQJSSJ,YXJ,XQZW,LY,GCPC,WJNR)
         values
-            ( #{demandEntity.xqbh},
-            #{demandEntity.xqbsh},
-            #{demandEntity.xqmc},
-            #{demandEntity.rwlx},
+            ( #{demandEntity.xqbh,jdbcType=VARCHAR},
+            #{demandEntity.xqbsh,jdbcType=VARCHAR},
+            #{demandEntity.xqmc,jdbcType=VARCHAR},
+            #{demandEntity.rwlx,jdbcType=VARCHAR},
             #{demandEntity.yxqkssj},
             #{demandEntity.yxqjssj},
             #{demandEntity.yxj},
             #{demandEntity.xqzw},
             #{demandEntity.ly},
             #{demandEntity.gcpc},
-            #{demandEntity.wjnr},
-            now())
+            #{demandEntity.wjnr})
+    </insert>
+
+    <!--  保存目标信息-需求信息  -->
+    <insert id="saveTargetInfo">
+        insert into
+            XQCH_XQXX_MBXX (XQBH,MBBH,MBMC,ZDMBBH,YXJ,RWLX,FBLYQ,MBLX,GJDQ,DWLX)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.xqbh},#{item.mbbh},#{item.mbmc},#{item.zdmbbh},#{item.yxj},#{item.rwlx},#{item.fblyq},#{item.mblx},#{item.gjdq},#{item.dwlx})
+        </foreach>
+    </insert>
+    <!--  保存目标坐标信息-需求信息  -->
+    <insert id="saveTargetZbInfo">
+        insert into
+            XQCH_XQXX_MBXX_ZB (XQBH,MBBH,ZBDXH,JD,WD,BJ,SJ,HX,HS)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.xqbh},#{item.mbbh},#{item.zbdxh},#{item.jd},#{item.wd},#{item.bj},#{item.sj},#{item.hx},#{item.hs})
+        </foreach>
     </insert>
 
 </mapper>

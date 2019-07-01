@@ -2,9 +2,9 @@
 
 <configuration debug="false">
     <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
-    <property name="LOGINFO_HOME" value="D:/kangge/ideproject/infolog" />
-    <property name="LOGERROR_HOME" value="D:/kangge/ideproject/errorlog" />
-    <property name="LOGDEBUG_HOME" value="D:/kangge/ideproject/debuglog" />
+    <property name="LOGINFO_HOME" value="C:/apache-tomcat/demandsLog/infolog" />
+    <property name="LOGERROR_HOME" value="C:/apache-tomcat/demandsLog/errorlog" />
+    <property name="LOGDEBUG_HOME" value="C:/apache-tomcat/demandsLog/debuglog" />
     <!-- 彩色日志 -->
     <!-- 彩色日志依赖的渲染类 -->
     <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />

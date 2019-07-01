@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cetc.plan.demand.model.CoretargetEntity;
 import com.cetc.plan.demand.model.DemandEntity;
+import com.cetc.plan.demand.model.TargetInfoEntity;
 import com.cetc.plan.exception.DemandException;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -44,13 +45,14 @@ public interface DemandMapper  extends BaseMapper {
      * @return
      */
     List<CoretargetEntity> selectTargetByName(@Param("gjdq") String gjdq);
+
     /**
      * @Description 根据需求编号查询需求
      * @Author kg
      * @Param [xqbh]
      * @Date 10:16 2019/6/21
      */
-    DemandEntity selectDemandByXqbh(Integer xqbh);
+    DemandEntity selectDemandByXqbh(String xqbh);
     /**
      * @Description 保存需求信息
      * @Author kg
@@ -58,6 +60,7 @@ public interface DemandMapper  extends BaseMapper {
      * @Date 11:02 2019/6/24
      */
     void saveDemand(@Param("demandEntity")DemandEntity demandEntity);
+
     /**
      * @Description //TODO  获取星地资源信息
      * @Author kg
@@ -65,6 +68,7 @@ public interface DemandMapper  extends BaseMapper {
      * @Date 11:21 2019/6/26
      */
     List<Map<String, Object>> getSatelliteInfos();
+
     /**
      * @Description //TODO 获取区域内目标 ---重点目标坐标信息
      * @Author kg
@@ -73,4 +77,19 @@ public interface DemandMapper  extends BaseMapper {
      */
     List<CoretargetEntity> getAreaTarget(Map map) throws DemandException;
 
+    /**
+     * @Description //TODO 保存目标信息-需求信息
+     * @Author kg
+     * @Param
+     * @Date 9:27 2019/7/1
+     */
+    int saveTargetInfo(List<TargetInfoEntity> targetInfoList);
+
+    /**
+     * @Description //TODO 保存目标坐标信息-需求信息
+     * @Author kg
+     * @Param [targetInfoList]
+     * @Date 9:40 2019/7/1
+     */
+    int saveTargetZbInfo(List<TargetInfoEntity> targetInfoList);
 }

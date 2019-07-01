@@ -44,7 +44,7 @@ public interface DemandService {
      * @Param [xqbh]
      * @Date 10:16 2019/6/21
      */
-    DemandEntity selectDemandByXqbh(Integer xqbh) throws DemandException;
+    DemandEntity selectDemandByXqbh(String xqbh) throws DemandException;
     /**
      * @Description 保存需求信息
      * @Author kg

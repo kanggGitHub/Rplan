@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -128,9 +129,40 @@ private static final long serialVersionUID=1L;
     @TableField("HS")
     private String hs;
 
+    /**
+     * 左上角经度
+     */
+    private String leftlog;
+
+    /**
+     * 左上角纬度
+     */
+    private String leftlat;
+
+    /**
+     * 右上角经度
+     */
+    private String rightlog;
+
+    /**
+     * 右上角纬度
+     */
+    private String rightlat;
+
+    /**
+     * 卫星标识
+     */
+    private String wxbs;
+
+    /**
+     * 目标库
+     */
+    private List<TargetInfoEntity> pointList;
+
     public String getXqbh() {
         return xqbh;
     }
+
 
     public void setXqbh(String xqbh) {
         this.xqbh = xqbh;
@@ -272,6 +304,54 @@ private static final long serialVersionUID=1L;
         this.hs = hs;
     }
 
+    public String getLeftlog() {
+        return leftlog;
+    }
+
+    public void setLeftlog(String leftlog) {
+        this.leftlog = leftlog;
+    }
+
+    public String getLeftlat() {
+        return leftlat;
+    }
+
+    public void setLeftlat(String leftlat) {
+        this.leftlat = leftlat;
+    }
+
+    public String getRightlog() {
+        return rightlog;
+    }
+
+    public void setRightlog(String rightlog) {
+        this.rightlog = rightlog;
+    }
+
+    public String getRightlat() {
+        return rightlat;
+    }
+
+    public void setRightlat(String rightlat) {
+        this.rightlat = rightlat;
+    }
+
+    public String getWxbs() {
+        return wxbs;
+    }
+
+    public void setWxbs(String wxbs) {
+        this.wxbs = wxbs;
+    }
+
+    public List<TargetInfoEntity> getPointList() {
+        return pointList;
+    }
+
+    public void setPointList(List<TargetInfoEntity> pointList) {
+        this.pointList = pointList;
+    }
+
     @Override
     public String toString() {
         return "TargetInfoEntity{" +
@@ -293,6 +373,12 @@ private static final long serialVersionUID=1L;
                 ", sj=" + sj +
                 ", hx='" + hx + '\'' +
                 ", hs='" + hs + '\'' +
+                ", leftlog='" + leftlog + '\'' +
+                ", leftlat='" + leftlat + '\'' +
+                ", rightlog='" + rightlog + '\'' +
+                ", rightlat='" + rightlat + '\'' +
+                ", wxbs='" + wxbs + '\'' +
+                ", pointList=" + pointList +
                 '}';
     }
 }

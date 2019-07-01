@@ -6,14 +6,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cetc.plan.demand.model.CoretargetEntity;
 import com.cetc.plan.demand.model.DemandEntity;
 import com.cetc.plan.demand.dao.DemandMapper;
+import com.cetc.plan.demand.model.TargetInfoEntity;
 import com.cetc.plan.demand.service.DemandService;
 import com.cetc.plan.exception.DemandException;
 import com.cetc.plan.utils.DemandUtils;
+import com.cetc.plan.utils.LogUtils;
 import com.cetc.plan.utils.ResultCode;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,8 +33,13 @@ import java.util.stream.Collectors;
 @Service
 public class DemandServiceImpl extends ServiceImpl implements DemandService {
 
+    private static final Logger LOG = LogUtils.getLogger(DemandServiceImpl.class);
+    private static final String RWLX_WCH="WCH";
+
     @Resource
     DemandMapper demandMapper;
+
+    private DemandUtils demandUtils = new DemandUtils();
 
     /**
      * @Description 查询所有国家
@@ -100,7 +109,7 @@ public class DemandServiceImpl extends ServiceImpl implements DemandService {
      * @Date 15:26 2019/6/21
      */
     @Override
-    public DemandEntity selectDemandByXqbh(Integer xqbh) throws DemandException {
+    public DemandEntity selectDemandByXqbh(String xqbh) throws DemandException {
         try {
             DemandEntity demandEntity =  demandMapper.selectDemandByXqbh(xqbh);
             return demandEntity;
@@ -118,7 +127,36 @@ public class DemandServiceImpl extends ServiceImpl implements DemandService {
     @Override
     public void saveDemand(DemandEntity demandEntity) throws DemandException {
         try {
+            /*保存需求信息*/
+            LOG.info("开始保存需求信息>>>>>>>>>>>>>>>>>>>>>");
+            String xqbh = DemandUtils.getXqbhUid();
+            String mbbh = DemandUtils.getMbbhUid();
+            demandEntity.setXqbh(xqbh);
+            demandEntity.setGcpc(RWLX_WCH);
+            demandEntity.setYxqjssj(new Date());
+            demandEntity.setYxqkssj(new Date());
             demandMapper.saveDemand(demandEntity);
+            LOG.info("保存需求信息完成>>>>>>>>>>>>>>>>>>>>>");
+            /*获取所有目标信息*/
+            List<TargetInfoEntity> valmap = demandEntity.getTaregetinfolist();
+            /*目标信息按照目标类型分组*/
+            Map<String, List<TargetInfoEntity>> collect = valmap.stream().collect(Collectors.groupingBy(t -> t.getMblx()));
+            /*获取区域目标信息 单独处理*/
+            List<TargetInfoEntity> areaList = collect.get("area");
+            List<TargetInfoEntity> ResultAreaList = DemandUtils.getAreaList(areaList,xqbh,mbbh);
+            /*获取 点目标point、目标库amin、行政区域region 信息*/
+            List<TargetInfoEntity> arpList = demandUtils.getARPList(collect,xqbh,mbbh);
+            if(DemandUtils.isNotEmpty(ResultAreaList)){
+                arpList.addAll(ResultAreaList);
+            }
+            LOG.info("开始保存目标信息>>>>>>>>>>>>>>>>>>>>>");
+            /*保存目标信息*/
+            demandMapper.saveTargetInfo(arpList);
+            LOG.info("保存需求目标信息完成>>>>>>>>>>>>>>>>>>>>>");
+            LOG.info("开始保存目标坐标信息>>>>>>>>>>>>>>>>>>>>>");
+            /*保存目标坐标信息*/
+            demandMapper.saveTargetZbInfo(arpList);
+            LOG.info("保存需求目标坐标信息完成>>>>>>>>>>>>>>>>>>>>>");
         }catch (Throwable throwable){
             throwable.printStackTrace();
             throw new DemandException(ResultCode.DATABASES_OPERATION_FAIL.getValue(),"保存需求信息失败: SAVEDEMAND");

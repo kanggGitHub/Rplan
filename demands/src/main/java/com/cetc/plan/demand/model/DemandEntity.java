@@ -7,6 +7,7 @@ import java.sql.Blob;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -25,7 +26,7 @@ private static final long serialVersionUID=1L;
      * 需求编号
      */
     @TableId("XQBH")
-    private Integer xqbh;
+    private String xqbh;
 
     /**
      * 需求标识号
@@ -93,12 +94,13 @@ private static final long serialVersionUID=1L;
     @TableField("RKSJ")
     private Date rksj;
 
+    private List<TargetInfoEntity> taregetinfolist;
 
-    public Integer getXqbh() {
+    public String getXqbh() {
         return xqbh;
     }
 
-    public void setXqbh(Integer xqbh) {
+    public void setXqbh(String xqbh) {
         this.xqbh = xqbh;
     }
 
@@ -190,21 +192,30 @@ private static final long serialVersionUID=1L;
         this.rksj = rksj;
     }
 
+    public List<TargetInfoEntity> getTaregetinfolist() {
+        return taregetinfolist;
+    }
+
+    public void setTaregetinfolist(List<TargetInfoEntity> taregetinfolist) {
+        this.taregetinfolist = taregetinfolist;
+    }
+
     @Override
     public String toString() {
         return "DemandEntity{" +
-        "xqbh=" + xqbh +
-        ", xqbsh=" + xqbsh +
-        ", xqmc=" + xqmc +
-        ", rwlx=" + rwlx +
-        ", yxqkssj=" + yxqkssj +
-        ", yxqjssj=" + yxqjssj +
-        ", yxj=" + yxj +
-        ", xqzw=" + xqzw +
-        ", ly=" + ly +
-        ", gcpc=" + gcpc +
-        ", wjnr=" + wjnr +
-        ", rksj=" + rksj +
-        "}";
+                "xqbh=" + xqbh +
+                ", xqbsh='" + xqbsh + '\'' +
+                ", xqmc='" + xqmc + '\'' +
+                ", rwlx='" + rwlx + '\'' +
+                ", yxqkssj=" + yxqkssj +
+                ", yxqjssj=" + yxqjssj +
+                ", yxj='" + yxj + '\'' +
+                ", xqzw='" + xqzw + '\'' +
+                ", ly='" + ly + '\'' +
+                ", gcpc='" + gcpc + '\'' +
+                ", wjnr=" + wjnr +
+                ", rksj=" + rksj +
+                ", taregetinfolist=" + taregetinfolist +
+                '}';
     }
 }
