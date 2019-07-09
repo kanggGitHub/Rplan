@@ -1,8 +1,13 @@
 package com.cetc.plan.utils;
 
+import com.cetc.plan.config.StaticConst;
 import com.cetc.plan.demand.model.CoretargetEntity;
+import com.cetc.plan.demand.model.SateliteEntity;
 import com.cetc.plan.demand.model.TargetInfoEntity;
+import com.cetc.plan.demand.model.param.ParamEntity;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -10,7 +15,14 @@ import java.util.*;
  * @Author kg
  * @Date 10:15 2019/6/20
  **/
+@Component
 public class DemandUtils {
+
+    @Resource
+    StaticConst staticConst;
+
+    private int mbbh = 0;
+
 
     public DemandUtils() {
         super();
@@ -23,7 +35,7 @@ public class DemandUtils {
      * @return boolean
      * @Date 15:19 2019/6/20
      */
-    public static boolean isEmpty(List<?> list){
+    public  boolean isEmpty(List<?> list){
         if(list == null || list.isEmpty() || list.size()<=0  ){
             return true;
         }
@@ -37,7 +49,7 @@ public class DemandUtils {
      * @return boolean
      * @Date 15:19 2019/6/20
      */
-    public static boolean isNotEmpty(List<?> list){
+    public  boolean isNotEmpty(List<?> list){
         if(list == null || list.isEmpty() || list.size()<=0  ){
             return false;
         }
@@ -51,7 +63,7 @@ public class DemandUtils {
      * @return boolean
      * @Date 15:25 2019/6/20
      */
-    public static boolean isEmpyt(Map<?,?> map){
+    public  boolean isEmpyt(Map<?,?> map){
         if(map == null || map.isEmpty()){
             return true;
         }
@@ -65,7 +77,7 @@ public class DemandUtils {
      * @return boolean
      * @Date 15:25 2019/6/20
      */
-    public static boolean isNotEmpyt(Map<?,?> map){
+    public  boolean isNotEmpyt(Map<?,?> map){
         if(map == null || map.isEmpty() ){
             return false;
         }
@@ -77,9 +89,12 @@ public class DemandUtils {
      * @Param []
      * @Date 10:19 2019/7/1
      */
-    public  static String getXqbhUid(){
-        long xqbh = System.currentTimeMillis();
-        return "XQBH"+xqbh;
+    public   Long getUid(){
+        long xqbh = System.nanoTime();
+        String str = String.valueOf(xqbh);
+        str = str.substring(str.length()-15,str.length());
+        System.out.println("str====="+str);
+        return Long.valueOf(str);
     }
 
     /**
@@ -88,10 +103,11 @@ public class DemandUtils {
      * @Param []
      * @Date 10:19 2019/7/1
      */
-    public  static String getMbbhUid(){
-        long mbbh = System.currentTimeMillis();
-        return "MBBH"+mbbh;
+    public   int getMBUid(Integer BH){
+        BH = BH+1;
+        return BH;
     }
+
 
     /**
      * @Description 数据分组 查询重点目标库专用
@@ -100,7 +116,7 @@ public class DemandUtils {
      * @return java.util.List<java.util.Map>
      * @Date 15:19 2019/6/20
      */
-    public static List<Map> dataGrouping(Map<String,List<CoretargetEntity>> collect){
+    public  List<Map> dataGrouping(Map<String,List<CoretargetEntity>> collect){
         if(collect.size()<=0)return null;
         List<Map> returnList = new ArrayList<Map>();
         Map<String, Object> itemMap;
@@ -120,17 +136,14 @@ public class DemandUtils {
      * @Param [map]
      * @Date 9:53 2019/7/1
      */
-    public static List<TargetInfoEntity> getARPList(Map<String, List<TargetInfoEntity>> map,String xqbh,String mbbh){
+    public  List<TargetInfoEntity> getARPList(Map<String, List<TargetInfoEntity>> map,Integer xqbh){
         List<TargetInfoEntity> arpList = new ArrayList<>();
         //获取点目标point
         List<TargetInfoEntity> pointList = map.get("point");
-        setXqbh(pointList,xqbh,mbbh);//设置编号
         //获取目标库aim
         List<TargetInfoEntity> aimList = map.get("aim");
-        setXqbh(aimList,xqbh,mbbh);//设置编号
         //获取行政区域region
         List<TargetInfoEntity> regionList = map.get("region");
-        setXqbh(regionList,xqbh,mbbh);//设置编号
         if(isNotEmpty(pointList))
             arpList.addAll(pointList);
         if(isNotEmpty(aimList))
@@ -142,17 +155,17 @@ public class DemandUtils {
     }
 
     /**
-     * @Description //TODO 设置编号 目标编号、需求编号
+     * @Description //TODO 处理所有目标 增加需求编号 目标编号
      * @Author kg
-     * @Param [list, xqbh, mbbh]
-     * @Date 11:42 2019/7/1
+     * @Param [list, xqbh]
+     * @Date 15:11 2019/7/4
      */
-    private static void setXqbh(List<TargetInfoEntity> list, String xqbh,String mbbh) {
-        if(isNotEmpty(list)){
-            for(TargetInfoEntity targetInfoEntity : list){
-                targetInfoEntity.setXqbh(xqbh);
-                targetInfoEntity.setMbbh(mbbh);
-            }
+    public void setAllbh(List<TargetInfoEntity> list,Integer xqbh,Integer MBBH){
+        for(TargetInfoEntity targetInfoEntity : list){
+            targetInfoEntity.setMbbh(getMBUid(MBBH));
+            targetInfoEntity.setXqbh(xqbh);
+            targetInfoEntity.setZbdxh(staticConst.MBXX_ZBDXH1);
+            targetInfoEntity.setMblx(staticConst.MBXX_MBLX_GDMB_ID);
         }
     }
 
@@ -162,30 +175,24 @@ public class DemandUtils {
      * @Param [list, xqbh]
      * @Date 10:35 2019/7/1
      */
-    public static List<TargetInfoEntity> getAreaList(List<TargetInfoEntity> list,String xqbh,String mbbh){
+    public  List<TargetInfoEntity> getAreaList(List<TargetInfoEntity> list,Integer xqbh){
         if(isEmpty(list))return  null;
         List<TargetInfoEntity> saveTargetInfo = new ArrayList<>();
         //创建新对象
         TargetInfoEntity targetInfo1 = new TargetInfoEntity();
         TargetInfoEntity targetInfo2 = new TargetInfoEntity();
-        List<TargetInfoEntity> targetInfo3 = new ArrayList<>();
         for(TargetInfoEntity targetInfoEntity : list){
-            targetInfo3 = targetInfoEntity.getPointList();
-            if(isNotEmpty(targetInfo3)){
-                for(TargetInfoEntity infoEntity : targetInfo3){
-                    infoEntity.setMbbh(mbbh);
-                    infoEntity.setXqbh(xqbh);
-                }
-            }
             //给创建的新对象赋值
-            setTargetDate(targetInfo1,targetInfo2,targetInfoEntity,xqbh,mbbh);
+            //区域目标rwlx为 区域目标
+            targetInfoEntity.setMblx(staticConst.MBXX_MBLX_QYMB_ID);
+            setTargetDate(targetInfo1,targetInfo2,targetInfoEntity,xqbh);
             //返回的数据集合
-            saveTargetInfo.addAll(targetInfo3);
             saveTargetInfo.add(targetInfo1);
             saveTargetInfo.add(targetInfo2);
         }
         return saveTargetInfo;
     }
+
 
     /**
      * @Description //TODO  给新对象赋值
@@ -194,10 +201,10 @@ public class DemandUtils {
      * @Date 10:58 2019/7/1
      */
     @SuppressWarnings("all")
-    private static void setTargetDate(TargetInfoEntity targetInfo1, TargetInfoEntity targetInfo2,
-                                      TargetInfoEntity targetInfoEntity, String xqbh, String mbbh) {
-        targetInfo1.setMbbh(mbbh);
-        targetInfo1.setXqbh(xqbh);
+    private  void setTargetDate(TargetInfoEntity targetInfo1, TargetInfoEntity targetInfo2,
+                                      TargetInfoEntity targetInfoEntity, Integer xqbh) {
+        targetInfo1.setMbbh(targetInfoEntity.getMbbh());
+        targetInfo1.setXqbh(targetInfoEntity.getXqbh());
         targetInfo1.setBj(targetInfoEntity.getBj());
         targetInfo1.setDwlx(targetInfoEntity.getDwlx());
         targetInfo1.setFblyq(targetInfoEntity.getFblyq());
@@ -213,11 +220,11 @@ public class DemandUtils {
         targetInfo1.setSj(targetInfoEntity.getSj());
         targetInfo1.setWxbs(targetInfoEntity.getWxbs());
         targetInfo1.setYxj(targetInfoEntity.getYxj());
-        targetInfo1.setZbdxh(targetInfoEntity.getZbdxh());
+        targetInfo1.setZbdxh(staticConst.MBXX_ZBDXH1);
         targetInfo1.setZdmbbh(targetInfoEntity.getZdmbbh());
 
-        targetInfo2.setMbbh(mbbh);
-        targetInfo2.setXqbh(xqbh);
+        targetInfo2.setMbbh(targetInfoEntity.getMbbh());
+        targetInfo2.setXqbh(targetInfoEntity.getXqbh());
         targetInfo2.setBj(targetInfoEntity.getBj());
         targetInfo2.setDwlx(targetInfoEntity.getDwlx());
         targetInfo2.setFblyq(targetInfoEntity.getFblyq());
@@ -233,9 +240,51 @@ public class DemandUtils {
         targetInfo2.setSj(targetInfoEntity.getSj());
         targetInfo2.setWxbs(targetInfoEntity.getWxbs());
         targetInfo2.setYxj(targetInfoEntity.getYxj());
-        targetInfo2.setZbdxh(targetInfoEntity.getZbdxh());
+        targetInfo2.setZbdxh(staticConst.MBXX_ZBDXH2);
         targetInfo2.setZdmbbh(targetInfoEntity.getZdmbbh());
     }
 
 
+    /**
+     * @Description //TODO 处理卫星标识数据
+     * @Author kg
+     * @Param [list, xqbh, mbbh]
+     * @Date 17:00 2019/7/2
+     */
+    public  List<SateliteEntity> getHandleSatelite(List<TargetInfoEntity> list,Integer xqbh){
+        if(isEmpty(list))return null;
+        List<SateliteEntity> sateliteEntities = new ArrayList<>();
+        for(TargetInfoEntity targetInfoEntity : list){
+            SateliteEntity sateliteEntity = new SateliteEntity();
+            sateliteEntity.setMbbh(targetInfoEntity.getMbbh());
+            sateliteEntity.setXqbh(targetInfoEntity.getXqbh());
+            sateliteEntity.setWxbs(targetInfoEntity.getWxbs());
+            sateliteEntities.add(sateliteEntity);
+        }
+        return sateliteEntities;
+    }
+    /**
+     * @Description //TODO  分页信息计算
+     * @Author kg
+     * @Param [param]
+     * @Date 9:34 2019/7/9
+     */
+    public void setParamPage(ParamEntity param) {
+        int currentPage = param.getCurrentPage();
+        int pageSize = param.getPageSize();
+        param.setCurrentPage((currentPage-1)*pageSize);
+    }
+
+    /**
+     * @Description //TODO 组装返回数据结果
+     * @Author kg
+     * @Param [total, list]
+     * @Date 9:41 2019/7/9
+     */
+    public Map<String,Object> retrunMap(String total,List<?> list){
+        Map<String,Object> returnMap = new HashMap<>();
+        returnMap.put("total",total);
+        returnMap.put("list",list);
+        return returnMap;
+    }
 }

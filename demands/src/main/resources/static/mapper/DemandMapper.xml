@@ -3,16 +3,28 @@
 <mapper namespace="com.cetc.plan.demand.dao.DemandMapper">
 
 
+    <!--  查询需求最后一条id信息  -->
+    <select id="getLastInsertId" resultType="java.util.Map">
+       SELECT MAX(XX.XQBH) AS "XQBH",MAX(MB.MBBH) AS "MHBH" FROM XQCH_XQXX XX LEFT JOIN XQCH_XQXX_MBXX MB ON XX.XQBH = MB.XQBH
+    </select>
+
+
     <!--  获取重点目标库的信息  -->
     <select id="selectPageCoretarge" resultType="com.cetc.plan.demand.model.CoretargetEntity">
-        select  ZDMBBH  as "zdmbbh",
-                ZDMBMC  as "zdmbmc",
-                MBLX    as "mblx",
-                GJDQ    as "gjdq",
-                DWLX    as "dwlx",
-                RKSJ    as "rksj"
+        select
+                XZ.GJDQ    as "gjdq",
+                XZ.ZDMBBH  as "zdmbbh",
+                XZ.ZDMBMC  as "zdmbmc",
+                XZ.MBLX    as "mblx",
+                XZ.DWLX    as "dwlx",
+                XZ.RKSJ    as "rksj",
+                MB.JD      as "jd",
+                MB.WD      as "wd",
+                MB.BJ      as "bj",
+                MB.HX      as "hx"
         from
                 XQCH_ZDMBK XZ
+        left join XQCH_ZDMBK_MBZBXX MB on XZ.ZDMBBH = MB.ZDMBBH
         <where>
             <if test="zdmbmc  != null and zdmbmc != ''">
                 XZ.ZDMBMC like '%'+#{zdmbmc}+'%'
@@ -22,6 +34,58 @@
         ORDER BY
                 XZ.ZDMBMC
     </select>
+
+    <!--  模糊匹配国家名称 城市列表  -->
+    <select id="vagueCountryByname" resultType="com.cetc.plan.demand.model.CoretargetEntity">
+        select
+            <choose>
+                <when test="vagueName  != null and vagueName != '' and countryName == null">
+                    <if test="countFlag != null ">
+                        count(DISTINCT XZ.GJDQ) AS "totalCount"
+                    </if>
+                    <if test="countFlag == null ">
+                        distinct XZ.GJDQ    as "gjdq"
+                    </if>
+                </when>
+                <otherwise>
+                    <if test="countFlag != null ">
+                        count(DISTINCT XZ.ZDMBBH) AS "totalCount"
+                    </if>
+                    <if test="countFlag == null ">
+                        XZ.GJDQ    as "gjdq",
+                        XZ.ZDMBBH  as "zdmbbh",
+                        XZ.ZDMBMC  as "zdmbmc",
+                        XZ.MBLX    as "mblx",
+                        XZ.DWLX    as "dwlx",
+                        XZ.RKSJ    as "rksj",
+                        MB.JD      as "jd",
+                        MB.WD      as "wd",
+                        MB.BJ      as "bj",
+                        MB.HX      as "hx"
+                    </if>
+                </otherwise>
+            </choose>
+
+        from
+            XQCH_ZDMBK XZ
+        left join XQCH_ZDMBK_MBZBXX MB on XZ.ZDMBBH = MB.ZDMBBH
+        <where>
+            <if test="vagueName  != null and vagueName != '' and countryName == null">
+                XZ.GJDQ like '%'+#{vagueName}+'%' or XZ.ZDMBMC like '%'+#{vagueName}+'%'
+                group by XZ.GJDQ
+                order by XZ.GJDQ desc
+            </if>
+            <if test="vagueName  != null and vagueName != '' and countryName != null and countryName != ''">
+                XZ.GJDQ = #{countryName} and XZ.ZDMBMC like '%'+#{vagueName}+'%'
+                order by XZ.ZDMBMC desc
+            </if>
+        </where>
+        <if test="countFlag == null ">
+            limit #{currentPage} ,#{pageSize}
+        </if>
+
+    </select>
+
     <!--  查询重点目标库所有国家信息  -->
     <select id="selectAllCountries" resultType="java.lang.String">
         select distinct GJDQ as "gjdq" FROM XQCH_ZDMBK ORDER BY GJDQ
@@ -29,60 +93,63 @@
 
     <!--  根据国家名称查询其城市区域  -->
     <select id="selectTargetByName" resultType="com.cetc.plan.demand.model.CoretargetEntity">
-        select  ZDMBBH  as "zdmbbh",
-                ZDMBMC  as "zdmbmc",
-                MBLX    as "mblx",
-                GJDQ    as "gjdq",
-                DWLX    as "dwlx",
-                RKSJ    as "rksj"
+        select
+        <if test="countFlag != null ">
+            count(DISTINCT XZ.ZDMBBH) AS "totalCount"
+        </if>
+        <if test="countFlag == null ">
+            XZ.ZDMBBH  as "zdmbbh",
+            XZ.ZDMBMC  as "zdmbmc",
+            XZ.MBLX    as "mblx",
+            XZ.GJDQ    as "gjdq",
+            XZ.DWLX    as "dwlx",
+            XZ.RKSJ    as "rksj",
+            MB.JD      as "jd",
+            MB.WD      as "wd",
+            MB.BJ      as "bj",
+            MB.HX      as "hx"
+        </if>
         from
                 XQCH_ZDMBK XZ
+        left join XQCH_ZDMBK_MBZBXX MB on XZ.ZDMBBH = MB.ZDMBBH
         <where>
-            <if test="gjdq  != null and gjdq != ''">
-                XZ.GJDQ = #{gjdq}
+            <if test="countryName  != null and countryName != ''">
+                XZ.GJDQ = #{countryName}
             </if>
         </where>
+        order by XZ.ZDMBMC desc
+        <if test="countFlag == null ">
+            limit #{currentPage} ,#{pageSize}
+        </if>
     </select>
-    <!--  根据需求编号查询需求  -->
-    <select id="selectDemandByXqbh"  resultType="com.cetc.plan.demand.model.DemandEntity">
-        select  XQBH    as "xqbh",
-                XQBSH   as "xqbsh",
-                XQMC    as "xqmc",
-                RWLX    as "rwlx",
-                YXQKSSJ as "yxqkssj",
-                YXQJSSJ as "yxqjssj",
-                YXJ     as "yxj",
-                XQZW    as "xqzw",
-                LY      as "ly",
-                GCPC    as "gcpc",
-                WJNR    as "wjnr",
-                RKSJ    as "rksj"
-        from
-            XQCH_XQXX XX
-        where
-            XX.XQBH = #{xqbh}
-    </select>
+
     <!--  查询星地资源卫星代号  -->
     <select id="getSatelliteInfos" resultType="java.util.Map">
          SELECT
                 WXBS AS "wxbs", WXMC AS "wxmc" ,WXYT AS "wxyt"
         FROM    XDZY_WX
     </select>
-    <!--  查询重点目标库坐标信息  -->
-    <select id="getAreaTarget" resultType="com.cetc.plan.demand.model.CoretargetEntity">
-        select  XZ.ZDMBBH   as "zdmbbh",
-                XZMB.ZBDXH   as "zbdxh",
-                XZMB.JD      as "jd",
-                XZMB.WD      as "wd",
-                XZMB.BJ      as "bj",
-                XZMB.SJ      as "sj",
-                XZMB.HX      as "hx",
-                XZMB.HS      as "hs",
-                XZ.ZDMBMC    as "zdmbmc",
-                XZ.MBLX      as "mblx",
-                XZ.GJDQ      as "gjdq",
-                XZ.RKSJ      as "rksj",
-                XZ.DWLX      as "dwlx"
+    <!--  查询重点目标库坐标信息 区域搜索  -->
+    <select id="getAreaTarget"  resultType="com.cetc.plan.demand.model.CoretargetEntity">
+        select
+        <if test="countFlag != null ">
+            count(DISTINCT XZ.ZDMBBH) AS "totalCount"
+        </if>
+        <if test="countFlag == null ">
+            XZ.ZDMBBH   as "zdmbbh",
+            XZMB.ZBDXH   as "zbdxh",
+            XZMB.JD      as "jd",
+            XZMB.WD      as "wd",
+            XZMB.BJ      as "bj",
+            XZMB.SJ      as "sj",
+            XZMB.HX      as "hx",
+            XZMB.HS      as "hs",
+            XZ.ZDMBMC    as "zdmbmc",
+            XZ.MBLX      as "mblx",
+            XZ.GJDQ      as "gjdq",
+            XZ.RKSJ      as "rksj",
+            XZ.DWLX      as "dwlx"
+        </if>
         from   XQCH_ZDMBK XZ
         left join XQCH_ZDMBK_MBZBXX XZMB on XZ.ZDMBBH = XZMB.ZDMBBH
         <where>
@@ -92,16 +159,27 @@
                 and XZMB.wd >= #{leftLat} and XZMB.wd &lt;= #{rightLat}
             </if>
         </where>
+        <if test="countFlag == null ">
+            limit #{currentPage} ,#{pageSize}
+        </if>
+
     </select>
+
+
+    <!--  查询字典表信息  -->
+    <select id="getRunManageConfig" resultType="com.alibaba.fastjson.JSONObject">
+        select id,fieldname,fielddata,classification from XQCH_DICTIONARY
+    </select>
+
     <!--  保存需求录入信息  -->
     <insert id="saveDemand" parameterType="com.cetc.plan.demand.model.DemandEntity">
         insert into
             XQCH_XQXX (XQBH,XQBSH,XQMC,RWLX,YXQKSSJ,YXQJSSJ,YXJ,XQZW,LY,GCPC,WJNR)
         values
-            ( #{demandEntity.xqbh,jdbcType=VARCHAR},
-            #{demandEntity.xqbsh,jdbcType=VARCHAR},
-            #{demandEntity.xqmc,jdbcType=VARCHAR},
-            #{demandEntity.rwlx,jdbcType=VARCHAR},
+            ( #{demandEntity.xqbh},
+            #{demandEntity.xqbsh},
+            #{demandEntity.xqmc},
+            #{demandEntity.rwlx},
             #{demandEntity.yxqkssj},
             #{demandEntity.yxqjssj},
             #{demandEntity.yxj},
@@ -112,7 +190,7 @@
     </insert>
 
     <!--  保存目标信息-需求信息  -->
-    <insert id="saveTargetInfo">
+    <insert id="saveTargetInfo" keyProperty="XQBH">
         insert into
             XQCH_XQXX_MBXX (XQBH,MBBH,MBMC,ZDMBBH,YXJ,RWLX,FBLYQ,MBLX,GJDQ,DWLX)
         values
@@ -120,6 +198,19 @@
             (#{item.xqbh},#{item.mbbh},#{item.mbmc},#{item.zdmbbh},#{item.yxj},#{item.rwlx},#{item.fblyq},#{item.mblx},#{item.gjdq},#{item.dwlx})
         </foreach>
     </insert>
+    <!--  保存需求状态信息  -->
+    <insert id="saveDemandStatus">
+        insert into
+            XQCH_XQXX_XQZTXX (JLBH,XQBH,XQZT,GXSJ,GXYY,CZR)
+        values
+             ( #{demandEntity.jlbh},
+            #{demandEntity.xqbh},
+            #{demandEntity.xqzt},
+            #{demandEntity.gxsj},
+            #{demandEntity.gxyy},
+            #{demandEntity.czr})
+    </insert>
+
     <!--  保存目标坐标信息-需求信息  -->
     <insert id="saveTargetZbInfo">
         insert into
@@ -129,5 +220,122 @@
             (#{item.xqbh},#{item.mbbh},#{item.zbdxh},#{item.jd},#{item.wd},#{item.bj},#{item.sj},#{item.hx},#{item.hs})
         </foreach>
     </insert>
+    <!-- 保存目标信息-卫星要求   -->
+    <insert id="saveSateliteInfo">
+        insert into
+            XQCH_XQXX_MBXX_WXYQ (XQBH,MBBH,WXBS,WXMC)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.xqbh},#{item.mbbh},#{item.wxbs},#{item.wxmc})
+        </foreach>
+    </insert>
+
+
+    <!--  ==============================================================================================  -->
+
+    <!--  需求列表 复杂项 -->
+    <select id="getRequirementsList" parameterType="java.util.Map" resultType="com.cetc.plan.demand.model.DemandEntity">
+
+            SELECT
+            <if test="countFlag != null ">
+                count(DISTINCT XX.XQBH) AS "totalCount"
+            </if>
+            <if test="countFlag == null ">
+                DISTINCT
+                XX.XQBH as "xqbh",
+                XX.RKSJ as "RKSJ",
+                XX.XQMC as "xqmc",
+                (to_char(XX.YXQKSSJ, 'yyyy-mm-dd hh24:mi:ss')) AS "YXQKSSJ",
+                (to_char(XX.YXQJSSJ, 'yyyy-mm-dd hh24:mi:ss')) AS "yxqjssj",
+                XD1.FIELDDATA as "ly",
+                XD3.FIELDDATA AS "xqzt"
+            </if>
+                FROM
+                XQCH_XQXX XX
+                LEFT JOIN XQCH_XQXX_XQZTXX ZT ON XX.XQBH = ZT.XQBH
+                LEFT JOIN XQCH_XQXX_MBXX MB ON XX.XQBH = MB.XQBH
+                LEFT JOIN XQCH_DICTIONARY XD3 ON ZT.XQZT = XD3.ID
+                LEFT JOIN XQCH_DICTIONARY XD1 ON XX.LY = XD1.ID
+            <where>
+                <if test="xqzt != null and xqzt.size > 0 ">
+                     ZT.XQZT IN
+                    <foreach collection="xqzt" item="item" separator="," open="(" close=")">
+                        #{item}
+                    </foreach>
+                    /*需求状态数组*/
+                </if>
+                <if test="ly != null and ly.size > 0 ">
+                    and XD1.ID IN
+                    <foreach collection="ly" item="item" separator="," open="(" close=")">
+                        #{item}
+                    </foreach>
+                    /*需求来源*/
+                </if>
+                <if test="vagueName != null and vagueName != ''">
+                    and XX.XQMC like '%'+#{vagueName}+'%' or XD1.FIELDDATA like '%'+#{vagueName}+'%' or  MB.MBMC like '%'+#{vagueName}+'%'
+                    /*模糊匹配 需求名称 来源 目标名称*/
+                </if>
+                <if test="rksjstart != null and rksjstart != '' and rksjend != null and rksjend != ''">
+                    and XX.RKSJ between  #{rksjstart} and #{rksjend}
+                    /*入库时间段*/
+                </if>
+                <if test="yxqkssj != null and yxqkssj != '' and yxqjssj != null and yxqjssj != ''">
+                    and XX.YXQJSSJ &lt;= #{yxqjssj} and XX.YXQKSSJ &gt;= #{yxqkssj}
+                </if>
+            </where>
+        <if test="countFlag == null ">
+            <if test="sortRule != null and sortRule != ''">
+                order by
+                <if test="sortRule == 1 ">/*默认按照入库时间倒叙*/
+                    XX.RKSJ DESC
+                </if>
+                <if test="sortRule == 2 ">
+                    XX.RKSJ ASC
+                </if>
+                <if test="sortRule == 3 ">
+                    XX.YXQKSSJ DESC
+                </if>
+                <if test="sortRule == 4 ">
+                    XX.YXQKSSJ ASC
+                </if>
+            </if>
+            limit #{currentPage},#{pageSize}
+        </if>
+
+    </select>
+
+    <!--  获取需求详情  -->
+    <select id="getRequirementDetails" resultType="com.cetc.plan.demand.model.DemandEntity">
+        select  distinct 
+                XX.XQBH    as "xqbh",/*需求编号*/
+                XX.XQMC    as "xqmc",/*需求名称*/
+                XX.YXQKSSJ as "yxqkssj",/*有效期开始时间*/
+                XX.YXQJSSJ as "yxqjssj",/*有效期结束时间*/
+                XX.XQZW    as "xqzw",/*需求正文*/
+                XX.LY      as "ly",/*来源*/
+                XX.RKSJ    as "rksj",/*入库时间*/
+
+                XD3.FIELDDATA as "xqzt",/*需求状态*/
+
+                MB.MBMC    as "mbbh",/*目标名称*/
+                MB.ZDMBBH  as "zdmbbh",/*重点目标编号*/
+                MB.YXJ     as "yxj",/*优先级*/
+                MB.RWLX    as "rwlx",/*需求类型*/
+                MB.FBLYQ   as "fblyq",/*分辨率要求*/
+                MB.GJDQ    as "gjdq",/*国家地区*/
+
+                ZB.JD    as "jd",/*经度*/
+                ZB.WD    as "wd"/*纬度*/
+
+        from XQCH_XQXX XX
+        LEFT JOIN XQCH_XQXX_XQZTXX ZT ON XX.XQBH = ZT.XQBH
+        LEFT JOIN XQCH_DICTIONARY XD3 ON ZT.XQZT = XD3.ID
+        left join XQCH_XQXX_MBXX MB ON XX.XQBH = MB.XQBH
+        left join XQCH_XQXX_MBXX_ZB ZB ON ZB.XQBH = XX.XQBH
+
+        where
+            XX.XQBH = #{xqbh}
+    </select>
+
 
 </mapper>

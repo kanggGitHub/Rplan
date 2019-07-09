@@ -19,7 +19,10 @@ import java.time.Duration;
 
 
 /**
- * Redis缓存配置类
+ * @Description //TODO  Redis缓存配置类
+ * @Author kg
+ * @Param
+ * @Date 10:02 2019/7/9
  */
 @Configuration
 @EnableCaching

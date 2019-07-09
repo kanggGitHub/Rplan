@@ -1,11 +1,10 @@
 package com.cetc.plan.demand.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableField;
+import lombok.Data;
+
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * <p>
@@ -15,6 +14,7 @@ import java.util.Date;
  * @author kg
  * @since 2019-06-28
  */
+@Data
 public class SateliteEntity implements Serializable {
 
 private static final long serialVersionUID=1L;
@@ -65,7 +65,7 @@ private static final long serialVersionUID=1L;
      * 发射时间
      */
     @TableField("FSSJ")
-    private Date fssj;
+    private String fssj;
 
     /**
      * 主要用户
@@ -161,7 +161,7 @@ private static final long serialVersionUID=1L;
      * 入库时间
      */
     @TableField("RKSJ")
-    private Date rksj;
+    private String rksj;
 
 
 
@@ -175,13 +175,13 @@ private static final long serialVersionUID=1L;
      * 需求编号
      */
     @TableId("XQBH")
-    private String xqbh;
+    private Integer xqbh;
 
     /**
      * 目标编号
      */
     @TableField("MBBH")
-    private String mbbh;
+    private Integer mbbh;
 
     /**
      * 产品类型
@@ -206,247 +206,6 @@ private static final long serialVersionUID=1L;
      */
     @TableField("CPCSMDD")
     private String cpcsmdd;
-
-
-    public String getWxbs() {
-        return wxbs;
-    }
-
-    public void setWxbs(String wxbs) {
-        this.wxbs = wxbs;
-    }
-
-    public String getWxmc() {
-        return wxmc;
-    }
-
-    public void setWxmc(String wxmc) {
-        this.wxmc = wxmc;
-    }
-
-    public String getRwdh() {
-        return rwdh;
-    }
-
-    public void setRwdh(String rwdh) {
-        this.rwdh = rwdh;
-    }
-
-    public String getWxlx() {
-        return wxlx;
-    }
-
-    public void setWxlx(String wxlx) {
-        this.wxlx = wxlx;
-    }
-
-    public String getWxyt() {
-        return wxyt;
-    }
-
-    public void setWxyt(String wxyt) {
-        this.wxyt = wxyt;
-    }
-
-    public String getCpjb() {
-        return cpjb;
-    }
-
-    public void setCpjb(String cpjb) {
-        this.cpjb = cpjb;
-    }
-
-    public String getSsgj() {
-        return ssgj;
-    }
-
-    public void setSsgj(String ssgj) {
-        this.ssgj = ssgj;
-    }
-
-    public Date getFssj() {
-        return fssj;
-    }
-
-    public void setFssj(Date fssj) {
-        this.fssj = fssj;
-    }
-
-    public String getZyyh() {
-        return zyyh;
-    }
-
-    public void setZyyh(String zyyh) {
-        this.zyyh = zyyh;
-    }
-
-    public String getZjscnl() {
-        return zjscnl;
-    }
-
-    public void setZjscnl(String zjscnl) {
-        this.zjscnl = zjscnl;
-    }
-
-    public String getZjcknl() {
-        return zjcknl;
-    }
-
-    public void setZjcknl(String zjcknl) {
-        this.zjcknl = zjcknl;
-    }
-
-    public String getXsclnl() {
-        return xsclnl;
-    }
-
-    public void setXsclnl(String xsclnl) {
-        this.xsclnl = xsclnl;
-    }
-
-    public String getGbffnl() {
-        return gbffnl;
-    }
-
-    public void setGbffnl(String gbffnl) {
-        this.gbffnl = gbffnl;
-    }
-
-    public String getScnl() {
-        return scnl;
-    }
-
-    public void setScnl(String scnl) {
-        this.scnl = scnl;
-    }
-
-    public String getJlmsl() {
-        return jlmsl;
-    }
-
-    public void setJlmsl(String jlmsl) {
-        this.jlmsl = jlmsl;
-    }
-
-    public String getDdscmsl() {
-        return ddscmsl;
-    }
-
-    public void setDdscmsl(String ddscmsl) {
-        this.ddscmsl = ddscmsl;
-    }
-
-    public String getDzjscmsl() {
-        return dzjscmsl;
-    }
-
-    public void setDzjscmsl(String dzjscmsl) {
-        this.dzjscmsl = dzjscmsl;
-    }
-
-    public String getDmgzms() {
-        return dmgzms;
-    }
-
-    public void setDmgzms(String dmgzms) {
-        this.dmgzms = dmgzms;
-    }
-
-    public String getSfgz() {
-        return sfgz;
-    }
-
-    public void setSfgz(String sfgz) {
-        this.sfgz = sfgz;
-    }
-
-    public String getBz() {
-        return bz;
-    }
-
-    public void setBz(String bz) {
-        this.bz = bz;
-    }
-
-    public String getZt() {
-        return zt;
-    }
-
-    public void setZt(String zt) {
-        this.zt = zt;
-    }
-
-    public String getZlqkfs() {
-        return zlqkfs;
-    }
-
-    public void setZlqkfs(String zlqkfs) {
-        this.zlqkfs = zlqkfs;
-    }
-
-    public String getZlqkczf() {
-        return zlqkczf;
-    }
-
-    public void setZlqkczf(String zlqkczf) {
-        this.zlqkczf = zlqkczf;
-    }
-
-    public Date getRksj() {
-        return rksj;
-    }
-
-    public void setRksj(Date rksj) {
-        this.rksj = rksj;
-    }
-
-    public String getXqbh() {
-        return xqbh;
-    }
-
-    public void setXqbh(String xqbh) {
-        this.xqbh = xqbh;
-    }
-
-    public String getMbbh() {
-        return mbbh;
-    }
-
-    public void setMbbh(String mbbh) {
-        this.mbbh = mbbh;
-    }
-
-    public String getCplx() {
-        return cplx;
-    }
-
-    public void setCplx(String cplx) {
-        this.cplx = cplx;
-    }
-
-    public String getCpgs() {
-        return cpgs;
-    }
-
-    public void setCpgs(String cpgs) {
-        this.cpgs = cpgs;
-    }
-
-    public String getCpscmdd() {
-        return cpscmdd;
-    }
-
-    public void setCpscmdd(String cpscmdd) {
-        this.cpscmdd = cpscmdd;
-    }
-
-    public String getCpcsmdd() {
-        return cpcsmdd;
-    }
-
-    public void setCpcsmdd(String cpcsmdd) {
-        this.cpcsmdd = cpcsmdd;
-    }
 
 
     @Override

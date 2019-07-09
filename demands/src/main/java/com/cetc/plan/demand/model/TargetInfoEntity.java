@@ -1,12 +1,10 @@
 package com.cetc.plan.demand.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableField;
+import lombok.Data;
+
 import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 
 /**
  * <p>
@@ -16,6 +14,7 @@ import java.util.List;
  * @author kg
  * @since 2019-06-28
  */
+@Data
 public class TargetInfoEntity implements Serializable {
 
 private static final long serialVersionUID=1L;
@@ -24,13 +23,13 @@ private static final long serialVersionUID=1L;
      * 需求编号
      */
     @TableId("XQBH")
-    private String xqbh;
+    private Integer xqbh;
 
     /**
      * 目标编号
      */
     @TableField("MBBH")
-    private String mbbh;
+    private Integer mbbh;
 
     /**
      * 目标名称
@@ -51,7 +50,7 @@ private static final long serialVersionUID=1L;
     private String yxj;
 
     /**
-     * 业务类型
+     * 需求类型
      */
     @TableField("RWLX")
     private String rwlx;
@@ -84,14 +83,14 @@ private static final long serialVersionUID=1L;
      * 入库时间
      */
     @TableField("RKSJ")
-    private Date rksj;
+    private String rksj;
 
 
     /**
      * 坐标点序号
      */
     @TableField("ZBDXH")
-    private String zbdxh;
+    private Integer zbdxh;
 
     /**
      * 经度
@@ -115,7 +114,7 @@ private static final long serialVersionUID=1L;
      * 时间
      */
     @TableField("SJ")
-    private Date sj;
+    private String sj;
 
     /**
      * 航向
@@ -155,208 +154,15 @@ private static final long serialVersionUID=1L;
     private String wxbs;
 
     /**
-     * 目标库
+     * 自定义目标类型
      */
-    private List<TargetInfoEntity> pointList;
-
-    public String getXqbh() {
-        return xqbh;
-    }
-
-
-    public void setXqbh(String xqbh) {
-        this.xqbh = xqbh;
-    }
-
-    public String getMbbh() {
-        return mbbh;
-    }
-
-    public void setMbbh(String mbbh) {
-        this.mbbh = mbbh;
-    }
-
-    public String getMbmc() {
-        return mbmc;
-    }
-
-    public void setMbmc(String mbmc) {
-        this.mbmc = mbmc;
-    }
-
-    public String getZdmbbh() {
-        return zdmbbh;
-    }
-
-    public void setZdmbbh(String zdmbbh) {
-        this.zdmbbh = zdmbbh;
-    }
-
-    public String getYxj() {
-        return yxj;
-    }
-
-    public void setYxj(String yxj) {
-        this.yxj = yxj;
-    }
-
-    public String getRwlx() {
-        return rwlx;
-    }
-
-    public void setRwlx(String rwlx) {
-        this.rwlx = rwlx;
-    }
-
-    public String getFblyq() {
-        return fblyq;
-    }
-
-    public void setFblyq(String fblyq) {
-        this.fblyq = fblyq;
-    }
-
-    public String getMblx() {
-        return mblx;
-    }
-
-    public void setMblx(String mblx) {
-        this.mblx = mblx;
-    }
-
-    public String getGjdq() {
-        return gjdq;
-    }
-
-    public void setGjdq(String gjdq) {
-        this.gjdq = gjdq;
-    }
-
-    public String getDwlx() {
-        return dwlx;
-    }
-
-    public void setDwlx(String dwlx) {
-        this.dwlx = dwlx;
-    }
-
-    public Date getRksj() {
-        return rksj;
-    }
-
-    public void setRksj(Date rksj) {
-        this.rksj = rksj;
-    }
-
-    public String getZbdxh() {
-        return zbdxh;
-    }
-
-    public void setZbdxh(String zbdxh) {
-        this.zbdxh = zbdxh;
-    }
-
-    public String getJd() {
-        return jd;
-    }
-
-    public void setJd(String jd) {
-        this.jd = jd;
-    }
-
-    public String getWd() {
-        return wd;
-    }
-
-    public void setWd(String wd) {
-        this.wd = wd;
-    }
-
-    public String getBj() {
-        return bj;
-    }
-
-    public void setBj(String bj) {
-        this.bj = bj;
-    }
-
-    public Date getSj() {
-        return sj;
-    }
-
-    public void setSj(Date sj) {
-        this.sj = sj;
-    }
-
-    public String getHx() {
-        return hx;
-    }
-
-    public void setHx(String hx) {
-        this.hx = hx;
-    }
-
-    public String getHs() {
-        return hs;
-    }
-
-    public void setHs(String hs) {
-        this.hs = hs;
-    }
-
-    public String getLeftlog() {
-        return leftlog;
-    }
-
-    public void setLeftlog(String leftlog) {
-        this.leftlog = leftlog;
-    }
-
-    public String getLeftlat() {
-        return leftlat;
-    }
-
-    public void setLeftlat(String leftlat) {
-        this.leftlat = leftlat;
-    }
-
-    public String getRightlog() {
-        return rightlog;
-    }
-
-    public void setRightlog(String rightlog) {
-        this.rightlog = rightlog;
-    }
-
-    public String getRightlat() {
-        return rightlat;
-    }
-
-    public void setRightlat(String rightlat) {
-        this.rightlat = rightlat;
-    }
-
-    public String getWxbs() {
-        return wxbs;
-    }
-
-    public void setWxbs(String wxbs) {
-        this.wxbs = wxbs;
-    }
-
-    public List<TargetInfoEntity> getPointList() {
-        return pointList;
-    }
-
-    public void setPointList(List<TargetInfoEntity> pointList) {
-        this.pointList = pointList;
-    }
+    private String targetType;
 
     @Override
     public String toString() {
         return "TargetInfoEntity{" +
-                "xqbh='" + xqbh + '\'' +
-                ", mbbh='" + mbbh + '\'' +
+                "xqbh=" + xqbh +
+                ", mbbh=" + mbbh +
                 ", mbmc='" + mbmc + '\'' +
                 ", zdmbbh='" + zdmbbh + '\'' +
                 ", yxj='" + yxj + '\'' +
@@ -378,7 +184,7 @@ private static final long serialVersionUID=1L;
                 ", rightlog='" + rightlog + '\'' +
                 ", rightlat='" + rightlat + '\'' +
                 ", wxbs='" + wxbs + '\'' +
-                ", pointList=" + pointList +
+                ", targettype='" + targetType + '\'' +
                 '}';
     }
 }

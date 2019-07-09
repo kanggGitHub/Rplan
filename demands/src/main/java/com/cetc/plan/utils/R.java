@@ -1,6 +1,7 @@
 package com.cetc.plan.utils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.cetc.plan.config.ResultCode;
 
 import java.util.Map;
 
@@ -40,6 +41,12 @@ public class R extends JSONObject {
 	public static R ok(String msg) {
 		R r = new R();
 		r.put("msg", msg);
+		return r;
+	}
+
+	public static R ok(Long total) {
+		R r = new R();
+		r.put("total", total);
 		return r;
 	}
 

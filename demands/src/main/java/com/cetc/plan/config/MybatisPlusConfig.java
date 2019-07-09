@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
- * mybatisplu分页插件
+ * mybatis分页插件
  */
 
 @EnableTransactionManagement
@@ -18,7 +18,6 @@ public class MybatisPlusConfig {
 
     /**
      * mybatis-plus分页插件<br>
-     * 文档：http://mp.baomidou.com<br>
      */
     @Bean
     public PaginationInterceptor paginationInterceptor() {
