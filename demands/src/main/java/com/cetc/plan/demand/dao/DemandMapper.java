@@ -28,13 +28,6 @@ import java.util.Map;
 public interface DemandMapper  extends BaseMapper {
 
 
-    /**
-     * 获取重点目标库的信息 暂时废弃
-     * @param page 分页信息
-     * @param zdmbmc 名称 模糊匹配 重点目标名称
-     * @return
-     */
-    IPage<CoretargetEntity> selectPageCoretarge(Page page, String zdmbmc);
 
     /**
      * 查询所有国家---重点目标库
@@ -129,12 +122,17 @@ public interface DemandMapper  extends BaseMapper {
     List<DemandEntity> getRequirementsList(ParamEntity param) throws DemandException;
 
     /**
-     * @Description 根据需求编号查询需求
+     * @Description 根据需求编号查询需求信息、目标跟目标坐标信息
      * @Author kg
      * @Param [xqbh]
      * @Date 10:16 2019/6/21
      */
-    List<DemandEntity> getRequirementDetails(Integer xqbh) throws DemandException;
+    Map<String,Object> getRequirementInfo(Integer xqbh) throws DemandException;
+    List<TargetInfoEntity> getRequirementZbInfo(Integer xqbh) throws DemandException;
+    List<Map<String,Object>> getSatelites(Integer xqbh);
+
+
+    int delDemandInfo(Integer xqbh);
 
     /**
      * @Description //TODO 查询需求最后一条插入的id
@@ -142,6 +140,13 @@ public interface DemandMapper  extends BaseMapper {
      * @Param []
      * @Date 18:51 2019/7/5
      */
+    Map<String,Object> getLastInsertId();
 
-    Map<String,Integer> getLastInsertId();
+    /**
+     * @Description //TODO 根据需求编号查询需求状态
+     * @Author kg
+     * @Param [xqbh]
+     * @Date 16:23 2019/7/12
+     */
+    String getRequirementStatu(Integer xqbh);
 }

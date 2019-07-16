@@ -99,7 +99,7 @@ private static final long serialVersionUID=1L;
      * 记录编号
      */
     @TableField("JLBH")
-    private Long jlbh;
+    private Integer jlbh;
 
     /**
      * 需求状态

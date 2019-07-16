@@ -36,21 +36,26 @@ public class ParamEntity extends PageUtils {
     private String vagueName; //模糊搜索的名称
     private String countFlag;//查询总数
 
-    //需求列表排序字段 1：入库时间倒序 2：入库时间正序 3：有效期开始时间倒序 4：有效期开始时间正序 默认1
-    private Integer sortRule = 1;
+    private String orderBy; //排序字段
+    //需求列表排序字段 1：倒序 2：正序 默认1
+    private Integer sort = 1;
 
+
+    private Integer xqbh=-1;
 
     public ParamEntity(){
 
     }
-    public ParamEntity(List<Integer> xqzt,List<Integer> ly,String countryName,String vagueName,String yxqkssj,String yxqjssj,Integer sortRule){
+    public ParamEntity(List<Integer> xqzt,List<Integer> ly,String countryName,String vagueName,
+                       String yxqkssj,String yxqjssj,String orderBy,Integer sort){
         this.xqzt = xqzt;
         this.ly = ly;
         this.vagueName = vagueName;
         this.countryName = countryName;
         this.yxqkssj = yxqkssj;
         this.yxqjssj = yxqjssj;
-        this.sortRule = sortRule;
+        this.orderBy = orderBy;
+        this.sort = sort;
     }
 
     public ParamEntity(Double leftLng,Double leftLat,Double rightLng,Double rightLat){

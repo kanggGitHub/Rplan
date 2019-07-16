@@ -2,37 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cetc.plan.demand.dao.DemandMapper">
 
-
     <!--  查询需求最后一条id信息  -->
     <select id="getLastInsertId" resultType="java.util.Map">
-       SELECT MAX(XX.XQBH) AS "XQBH",MAX(MB.MBBH) AS "MHBH" FROM XQCH_XQXX XX LEFT JOIN XQCH_XQXX_MBXX MB ON XX.XQBH = MB.XQBH
-    </select>
-
-
-    <!--  获取重点目标库的信息  -->
-    <select id="selectPageCoretarge" resultType="com.cetc.plan.demand.model.CoretargetEntity">
-        select
-                XZ.GJDQ    as "gjdq",
-                XZ.ZDMBBH  as "zdmbbh",
-                XZ.ZDMBMC  as "zdmbmc",
-                XZ.MBLX    as "mblx",
-                XZ.DWLX    as "dwlx",
-                XZ.RKSJ    as "rksj",
-                MB.JD      as "jd",
-                MB.WD      as "wd",
-                MB.BJ      as "bj",
-                MB.HX      as "hx"
-        from
-                XQCH_ZDMBK XZ
-        left join XQCH_ZDMBK_MBZBXX MB on XZ.ZDMBBH = MB.ZDMBBH
-        <where>
-            <if test="zdmbmc  != null and zdmbmc != ''">
-                XZ.ZDMBMC like '%'+#{zdmbmc}+'%'
-                OR XZ.GJDQ like '%'+#{zdmbmc}+'%'
-            </if>
-        </where>
-        ORDER BY
-                XZ.ZDMBMC
+       SELECT IFNULL(MAX(XX.XQBH),1) AS "XQBH",IFNULL(MAX(MB.MBBH),1) AS "MBBH" FROM XQCH_XQXX XX LEFT JOIN XQCH_XQXX_MBXX MB ON XX.XQBH = MB.XQBH
     </select>
 
     <!--  模糊匹配国家名称 城市列表  -->
@@ -231,7 +203,7 @@
     </insert>
 
 
-    <!--  ==============================================================================================  -->
+    <!--  =============================================需求列表=================================================  -->
 
     <!--  需求列表 复杂项 -->
     <select id="getRequirementsList" parameterType="java.util.Map" resultType="com.cetc.plan.demand.model.DemandEntity">
@@ -243,10 +215,10 @@
             <if test="countFlag == null ">
                 DISTINCT
                 XX.XQBH as "xqbh",
-                XX.RKSJ as "RKSJ",
+                (to_char(XX.RKSJ, 'yyyy-mm-dd hh24:mi:ss'))  as "RKSJ",
                 XX.XQMC as "xqmc",
                 (to_char(XX.YXQKSSJ, 'yyyy-mm-dd hh24:mi:ss')) AS "YXQKSSJ",
-                (to_char(XX.YXQJSSJ, 'yyyy-mm-dd hh24:mi:ss')) AS "yxqjssj",
+                (to_char(XX.YXQJSSJ, 'yyyy-mm-dd hh24:mi:ss')) AS "YXQJSSJ",
                 XD1.FIELDDATA as "ly",
                 XD3.FIELDDATA AS "xqzt"
             </if>
@@ -284,58 +256,96 @@
                 </if>
             </where>
         <if test="countFlag == null ">
-            <if test="sortRule != null and sortRule != ''">
-                order by
-                <if test="sortRule == 1 ">/*默认按照入库时间倒叙*/
-                    XX.RKSJ DESC
+            order by
+            <if test="orderBy == 'RKSJ'">
+                <if test="sort == 1 ">
+                    RKSJ DESC
                 </if>
-                <if test="sortRule == 2 ">
-                    XX.RKSJ ASC
+                <if test="sort == 2 ">
+                    RKSJ ASC
                 </if>
-                <if test="sortRule == 3 ">
-                    XX.YXQKSSJ DESC
+            </if>
+            <if test="orderBy == 'YXQKSSJ'">
+                <if test="sort == 1 ">
+                    YXQKSSJ DESC
                 </if>
-                <if test="sortRule == 4 ">
-                    XX.YXQKSSJ ASC
+                <if test="sort == 2 ">
+                    YXQKSSJ ASC
                 </if>
+            </if>
+            <if test="orderBy == 'YXQJSSJ'">
+                <if test="sort == 1 ">
+                    YXQJSSJ DESC
+                </if>
+                <if test="sort == 2 ">
+                    YXQJSSJ ASC
+                </if>
+            </if>
+            <if test="orderBy == null || orderBy == ''">
+                RKSJ DESC
             </if>
             limit #{currentPage},#{pageSize}
         </if>
 
     </select>
 
-    <!--  获取需求详情  -->
-    <select id="getRequirementDetails" resultType="com.cetc.plan.demand.model.DemandEntity">
-        select  distinct 
-                XX.XQBH    as "xqbh",/*需求编号*/
-                XX.XQMC    as "xqmc",/*需求名称*/
-                XX.YXQKSSJ as "yxqkssj",/*有效期开始时间*/
-                XX.YXQJSSJ as "yxqjssj",/*有效期结束时间*/
-                XX.XQZW    as "xqzw",/*需求正文*/
-                XX.LY      as "ly",/*来源*/
-                XX.RKSJ    as "rksj",/*入库时间*/
+    <!--  获取需求信息详情  -->
+    <select id="getRequirementInfo" resultType="java.util.Map">
+        select
+                XX.XQBH         as "xqbh",/*需求编号*/
+                XX.XQMC         as "xqmc",/*需求名称*/
+                (to_char(XX.YXQKSSJ, 'yyyy-mm-dd hh24:mi:ss')) as "yxqkssj",/*有效期开始时间*/
+                (to_char(XX.YXQJSSJ, 'yyyy-mm-dd hh24:mi:ss')) as "yxqjssj",/*有效期结束时间*/
+                XX.XQZW         as "xqzw",/*需求正文*/
+                XX.LY           as "ly",/*来源*/
+                (to_char(XX.RKSJ, 'yyyy-mm-dd hh24:mi:ss')) as "rksj",/*入库时间*/
 
-                XD3.FIELDDATA as "xqzt",/*需求状态*/
-
-                MB.MBMC    as "mbbh",/*目标名称*/
-                MB.ZDMBBH  as "zdmbbh",/*重点目标编号*/
-                MB.YXJ     as "yxj",/*优先级*/
-                MB.RWLX    as "rwlx",/*需求类型*/
-                MB.FBLYQ   as "fblyq",/*分辨率要求*/
-                MB.GJDQ    as "gjdq",/*国家地区*/
-
-                ZB.JD    as "jd",/*经度*/
-                ZB.WD    as "wd"/*纬度*/
-
-        from XQCH_XQXX XX
-        LEFT JOIN XQCH_XQXX_XQZTXX ZT ON XX.XQBH = ZT.XQBH
-        LEFT JOIN XQCH_DICTIONARY XD3 ON ZT.XQZT = XD3.ID
-        left join XQCH_XQXX_MBXX MB ON XX.XQBH = MB.XQBH
-        left join XQCH_XQXX_MBXX_ZB ZB ON ZB.XQBH = XX.XQBH
-
+                XD3.FIELDDATA   as "xqzt"/*需求状态*/
+            from XQCH_XQXX XX
+            LEFT JOIN XQCH_XQXX_XQZTXX ZT ON XX.XQBH = ZT.XQBH
+            LEFT JOIN XQCH_DICTIONARY XD3 ON ZT.XQZT = XD3.ID
         where
             XX.XQBH = #{xqbh}
     </select>
+    <select id="getRequirementZbInfo" resultType="com.cetc.plan.demand.model.TargetInfoEntity">
+        select  distinct
+                MB.XQBH         as "xqbh",/*需求编号*/
+                MB.MBBH         as "mbbh",/*目标编号*/
+                MB.MBMC         as "mbmc",/*目标名称*/
+                MB.ZDMBBH       as "zdmbbh",/*重点目标编号*/
+                MB.YXJ          as "yxj",/*优先级*/
+                MB.RWLX         as "rwlx",/*需求类型*/
+                MB.FBLYQ        as "fblyq",/*分辨率要求*/
+                MB.GJDQ         as "gjdq",/*国家地区*/
+                MB.MBLX         as "mblx",/*目标类型*/
+                ZDMB.ZDMBMC     as "zdmbmc",/*重点目标名称*/
+                ZB.JD           as "jd",/*经度*/
+                ZB.WD           as "wd",/*纬度*/
+                ZB.ZBDXH        as "zbdxh"/*坐标点序号*/
+        from XQCH_XQXX_MBXX MB
+        left join XQCH_XQXX_MBXX_ZB ZB ON ZB.MBBH = MB.MBBH
+        left join XQCH_ZDMBK ZDMB ON ZDMB.ZDMBBH = MB.ZDMBBH
+        where    MB.XQBH = #{xqbh}
+    </select>
 
+    <select id="getSatelites" resultType="java.util.Map">
+        select MBBH,WXBS,WXMC from XQCH_XQXX_MBXX_WXYQ where XQBH=#{xqhb}
+    </select>
+
+    <!--  ==========================================更新需求信息=============================================  -->
+    <!--  根据需求编号查询需求状态  -->
+    <select id="getRequirementStatu" resultType="java.lang.String">
+        select XQZT from XQCH_XQXX_XQZTXX where XQBH = #{xqbh}
+    </select>
+
+
+    <!--  删除库里已有的数据  -->
+    <delete id="delDemandInfo">
+        DELETE FROM XQCH_XQXX_MBXX_WXYQ WHERE XQBH = #{xqbh};
+        DELETE FROM XQCH_XQXX_MBXX_ZB WHERE XQBH = #{xqbh};
+        DELETE FROM XQCH_XQXX_MBXX WHERE XQBH = #{xqbh};
+        DELETE FROM XQCH_XQXX_XQZTXX WHERE XQBH = #{xqbh};
+        DELETE FROM XQCH_XQXX WHERE XQBH = #{xqbh};
+    </delete>
 
 </mapper>

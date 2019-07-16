@@ -17,6 +17,9 @@ public class StaticConst {
     public   String MBXX_MBLX_GDMB;//固定目标
     public   String MBXX_MBLX_QYMB;//区域目标
     public   String MBXX_MBLX_YDMB;//移动目标
+    public   String MBXX_MBLX_DMB;//点目标
+    public   String MBXX_MBLX_ZDMB;//重点目标
+    public   String MBXX_MBLX_XZQY;//行政区域
 
     /*需求状态*/
     public   String XQXX_XQZT_WCH;//未筹划
@@ -39,18 +42,21 @@ public class StaticConst {
     public String XQXX_LY;
 
     /*对应数据库字段---初始化使用*/
-
-    public  String XQXX_XQZT_WCH_FIELD="UNPLANNED";
-    public  String XQXX_XQZT_YCH_FIELD="PLANNED";
-    public  String XQXX_XQZT_YQX_FIELD="CANCELLED";
-
-    public  String MBXX_MBLX_GDMB_FIELD="FIXEDTARGET";
-    public  String MBXX_MBLX_QYMB_FIELD="REGIONTARGET";
-    public  String MBXX_MBLX_YDMB_FIELD="MOVETARGET";
-
-    public  String MBXX_XQLX_GDMBJC_FIELD="FIXEDTARGETDETECTION";
-    public  String MBXX_XQLX_QYMBSS_FIELD="REGIONTARGETSEARCH";
-    public  String MBXX_XQLX_DMBGZJS_FIELD="MOVETARGETTS";
+    /*需求状态*/
+    public  String XQXX_XQZT_WCH_FIELD="UNPLANNED";//未筹划
+    public  String XQXX_XQZT_YCH_FIELD="PLANNED";//已筹划
+    public  String XQXX_XQZT_YQX_FIELD="CANCELLED";//已取消
+    /*目标信息库中的目标类型*/
+    public  String MBXX_MBLX_GDMB_FIELD="FIXEDTARGET";//固定目标
+    public  String MBXX_MBLX_QYMB_FIELD="AREATARGET";//区域目标
+    public  String MBXX_MBLX_YDMB_FIELD="MOVETARGET";//移动目标
+    public   String MBXX_MBLX_DMB_FIELD="POINTTARGET";//点目标
+    public   String MBXX_MBLX_ZDMB_FIELD="AIMTARGET";//重点目标
+    public   String MBXX_MBLX_XZQY_FIELD="REGIONTARGET";//行政区域
+    /*目标信息库中的任务类型------需求类型*/
+    public  String MBXX_XQLX_GDMBJC_FIELD="FIXEDTARGETDETECTION";//固定目标检测
+    public  String MBXX_XQLX_QYMBSS_FIELD="REGIONTARGETSEARCH";//区域目标搜索
+    public  String MBXX_XQLX_DMBGZJS_FIELD="MOVETARGETTS";//动目标跟踪监视
 
     public String XQXX_LY_FIELD="SOURCE";
     /*初始数据id*/
@@ -61,6 +67,9 @@ public class StaticConst {
     public  String MBXX_MBLX_GDMB_ID;
     public  String MBXX_MBLX_QYMB_ID;
     public  String MBXX_MBLX_YDMB_ID;
+    public   String MBXX_MBLX_DMB_ID;//点目标
+    public   String MBXX_MBLX_ZDMB_ID;//重点目标
+    public   String MBXX_MBLX_XZQY_ID;//行政区域
 
     public  String MBXX_XQLX_GDMBJC_ID;
     public  String MBXX_XQLX_QYMBSS_ID;
@@ -77,7 +86,10 @@ public class StaticConst {
      * @Param [list, name, value, id]
      * @Date 7:53 2019/7/4
      */
-    public void setData(List<JSONObject> list ,String name,String value,String id){
+    public void setData(List<JSONObject> list ){
+        String name = "";
+        String value = "";
+        String id = "";
         for(Object obj : list){
             name = ((JSONObject) obj).getString("fieldname");
             value = ((JSONObject) obj).getString("fielddata");
@@ -91,6 +103,15 @@ public class StaticConst {
             }else if(MBXX_MBLX_YDMB_FIELD.equals(name)){
                 MBXX_MBLX_YDMB = value;
                 MBXX_MBLX_YDMB_ID = id;
+            }else if(MBXX_MBLX_DMB_FIELD.equals(name)){
+                MBXX_MBLX_DMB = value;
+                MBXX_MBLX_DMB_ID = id;
+            }else if(MBXX_MBLX_ZDMB_FIELD.equals(name)){
+                MBXX_MBLX_ZDMB = value;
+                MBXX_MBLX_ZDMB_ID = id;
+            }else if(MBXX_MBLX_XZQY_FIELD.equals(name)){
+                MBXX_MBLX_XZQY = value;
+                MBXX_MBLX_XZQY_ID = id;
             }else if(MBXX_XQLX_DMBGZJS_FIELD.equals(name)){
                 MBXX_XQLX_DMBGZJS = value;
                 MBXX_XQLX_DMBGZJS_ID = id;

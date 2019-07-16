@@ -24,6 +24,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -45,9 +46,60 @@ public class DemandController {
     @Resource
     DemandRedisService demandRedisService;
 
-    @Resource
-    DemandUtils demandUtils;
+    /**
+     * @Description //TODO 更新缓存信息
+     * @Author kg
+     * @Param []
+     * @Date 10:08 2019/7/11
+     */
+    @RequestMapping("/updataRedis")
+    @ResponseBody
+    public R updataRedis(){
+        try{
+            demandService.updataRedis();
+            return R.ok("更新成功");
+        }catch (DemandException e){
+            LOG.error("更新失败："+e.getMessage());
+            return R.error(e.getCode(),e.getMessage());
+        }catch (Exception e){
+            LOG.error("更新失败："+e.getMessage());
+            return R.error();
+        }
+    }
 
+    /**
+     * @Description //TODO 获取数据--字典表
+     * @Author kg
+     * @Param [typeName：]
+     * @Date 10:45 2019/7/3
+     */
+    @RequestMapping("/getDictionaryData")
+    @ResponseBody
+    public R DictionaryData(@RequestParam("typeName")String typeName){
+        try{
+            if (StringUtils.isEmpty(typeName)){
+                return R.error(ResultCode.PARAMETER.getValue(),"参数错误");
+            }
+            Map<String,Object> map = demandRedisService.getMapRedisByKey("dictionary");
+            List<JSONObject> list = new ArrayList<>();
+                if("demandType".equals(typeName)){ //需求类型
+                list  = (List<JSONObject>) map.get("REQUIREMENTTYPE");
+            }else if("demandStatus".equals(typeName)){ //需求状态
+                list  = (List<JSONObject>) map.get("REQUIREMENTSTATUS");
+            }else if("sourceType".equals(typeName)){ //来源
+                list  = (List<JSONObject>) map.get("SOURCETYPE");
+            }else if("targetType".equals(typeName)){ //目标类型
+                list  = (List<JSONObject>) map.get("TARGETTYPE");
+            }
+            return R.ok().put("data",list);
+        }catch (DemandException e){
+            LOG.error("查询异常："+e.getMessage());
+            return R.error(e.getCode(),e.getMessage());
+        }catch (Exception e){
+            LOG.error("数据库服务器异常："+e.getMessage());
+            return R.error();
+        }
+    }
 
     /**
      * @Description //TODO 获取目标类型--字典表
@@ -72,7 +124,7 @@ public class DemandController {
     }
 
     /**
-     * @Description //TODO 获取需求状态
+     * @Description //TODO 获取需求状态 ---需求状态
      * @Author kg
      * @Param []
      * @Date 10:45 2019/7/3
@@ -138,29 +190,6 @@ public class DemandController {
         }
     }
 
-    /**
-     * 暂时废弃
-     * @Description 根据录入信息模糊搜索--目标库
-     * @Author kg
-     * @Param [name]
-     * @Date 9:56 2019/6/21
-     */
-    @RequestMapping("/getTargetByName")
-    @ResponseBody
-    public R getTargetByName(@RequestParam(value = "name",required = false) String name){
-        try{
-            if (StringUtils.isEmpty(name)){
-                return R.error(ResultCode.PARAMETER.getValue(),"参数错误");
-            }
-            List<Map> targetList = demandService.selectPageCoretarge(name);
-            return R.ok().put("data",targetList);
-        }catch (DemandException e){
-            return R.error(e.getCode(),e.getMessage());
-        }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
-            return R.error();
-        }
-    }
 
     /**
      * @Description 保存需求信息

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -38,10 +39,16 @@ private static final long serialVersionUID=1L;
     private String mbmc;
 
     /**
-     * 坐标点序号
+     * 重点目标编号
      */
     @TableField("ZDMBBH")
     private String zdmbbh;
+
+    /**
+     * 重点目标编号
+     */
+    @TableField("ZDMBMC")
+    private String zdmbmc;
 
     /**
      * 优先级
@@ -154,9 +161,10 @@ private static final long serialVersionUID=1L;
     private String wxbs;
 
     /**
-     * 自定义目标类型
+     * 卫星标识数组
      */
-    private String targetType;
+    private List<String> satellites;
+
 
     @Override
     public String toString() {
@@ -165,6 +173,7 @@ private static final long serialVersionUID=1L;
                 ", mbbh=" + mbbh +
                 ", mbmc='" + mbmc + '\'' +
                 ", zdmbbh='" + zdmbbh + '\'' +
+                ", zdmbmc='" + zdmbmc + '\'' +
                 ", yxj='" + yxj + '\'' +
                 ", rwlx='" + rwlx + '\'' +
                 ", fblyq='" + fblyq + '\'' +
@@ -184,7 +193,7 @@ private static final long serialVersionUID=1L;
                 ", rightlog='" + rightlog + '\'' +
                 ", rightlat='" + rightlat + '\'' +
                 ", wxbs='" + wxbs + '\'' +
-                ", targettype='" + targetType + '\'' +
+                ", satellites='" + satellites + '\'' +
                 '}';
     }
 }
