@@ -41,6 +41,9 @@ public class StaticConst {
     /*来源信息*/
     public String XQXX_LY;
 
+    /*元任务信息*/
+    public String ZCYRW_YRW_ZT;
+
     /*对应数据库字段---初始化使用*/
     /*需求状态*/
     public  String XQXX_XQZT_WCH_FIELD="UNPLANNED";//未筹划
@@ -59,14 +62,17 @@ public class StaticConst {
     public  String MBXX_XQLX_DMBGZJS_FIELD="MOVETARGETTS";//动目标跟踪监视
 
     public String XQXX_LY_FIELD="SOURCE";
+
+    public String ZCYRW_YRW_ZT_FIELD="SOURCE";
     /*初始数据id*/
     public  String XQXX_XQZT_WCH_ID;
     public  String XQXX_XQZT_YCH_ID;
     public  String XQXX_XQZT_YQX_ID;
 
-    public  String MBXX_MBLX_GDMB_ID;
-    public  String MBXX_MBLX_QYMB_ID;
-    public  String MBXX_MBLX_YDMB_ID;
+    public  String MBXX_MBLX_GDMB_ID;//固定目标
+    public  String MBXX_MBLX_YDMB_ID;//移动目标
+
+    public  String MBXX_MBLX_QYMB_ID;//区域目标
     public   String MBXX_MBLX_DMB_ID;//点目标
     public   String MBXX_MBLX_ZDMB_ID;//重点目标
     public   String MBXX_MBLX_XZQY_ID;//行政区域
@@ -76,10 +82,14 @@ public class StaticConst {
     public  String MBXX_XQLX_DMBGZJS_ID;
 
     public String XQXX_LY_ID;
+    public String ZCYRW_YRW_ZT_ID;
 
     /*需求信息数据XQBH字段自增值*/
     public Integer XQXX_XQBH_ID = 1;
     public Integer MBXX_MBBH_ID = 1;
+    public Integer ZCYRW_YRWBH_ID = 1;
+
+
     /**
      * @Description //TODO 初始化信息
      * @Author kg
@@ -133,6 +143,9 @@ public class StaticConst {
             }else if(XQXX_LY_FIELD.equals(name)){
                 XQXX_LY = value;
                 XQXX_LY_ID = id;
+            }else if(ZCYRW_YRW_ZT_FIELD.equals(name)){
+                ZCYRW_YRW_ZT = value;
+                ZCYRW_YRW_ZT_ID = id;
             }
         }
     }

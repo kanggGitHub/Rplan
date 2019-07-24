@@ -3,14 +3,12 @@ package com.cetc.plan.demand.controller;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.cetc.plan.config.StaticConst;
-import com.cetc.plan.demand.model.DemandEntity;
+import com.cetc.plan.demand.model.demand.DemandEntity;
+import com.cetc.plan.demand.model.demand.SateliteEntity;
 import com.cetc.plan.demand.model.param.ParamEntity;
 import com.cetc.plan.demand.service.DemandRedisService;
 import com.cetc.plan.demand.service.DemandService;
 import com.cetc.plan.exception.DemandException;
-import com.cetc.plan.utils.DemandUtils;
 import com.cetc.plan.utils.LogUtils;
 import com.cetc.plan.utils.R;
 import com.cetc.plan.config.ResultCode;
@@ -24,7 +22,6 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -54,8 +51,14 @@ public class DemandController {
      */
     @RequestMapping("/updataRedis")
     @ResponseBody
-    public R updataRedis(){
+    public R updataRedis(@RequestParam("userName") String username,@RequestParam("passWord") String password){
         try{
+            if((username==null&&username=="") ||(password==null && password=="") ){
+                return R.error("用户名或密码不能为空!");
+            }
+            if(!username.equals("rplan") || !password.equals("rplan")){
+                return R.error("用户名或密码错误！");
+            }
             demandService.updataRedis();
             return R.ok("更新成功");
         }catch (DemandException e){
@@ -92,12 +95,9 @@ public class DemandController {
                 list  = (List<JSONObject>) map.get("TARGETTYPE");
             }
             return R.ok().put("data",list);
-        }catch (DemandException e){
-            LOG.error("查询异常："+e.getMessage());
-            return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
-            return R.error();
+            LOG.error("缓存数据异常："+e.getMessage());
+            return R.error("缓存数据异常");
         }
     }
 
@@ -201,8 +201,8 @@ public class DemandController {
     @ResponseBody
     public R saveDemand(@RequestBody DemandEntity demandModel){
         try{
-            demandService.saveDemand(demandModel);
-            return R.ok();
+            Integer xqbh = demandService.saveDemand(demandModel);
+            return R.ok().put("data",xqbh);
         }catch (DemandException e){
             LOG.error("查询异常："+e.getMessage());
             return R.error(e.getCode(),e.getMessage());
@@ -222,7 +222,7 @@ public class DemandController {
     @ResponseBody
     public R getSatelliteInfos() {
         try{
-            List<Map<String, Object>> satelliteInfos = demandService.getSatelliteInfos();
+            List<SateliteEntity> satelliteInfos = demandService.getSatelliteInfos();
             return R.ok().put("data",satelliteInfos);
         }catch (DemandException e){
             LOG.error("查询异常："+e.getMessage());
@@ -288,6 +288,49 @@ public class DemandController {
     public R getRequirementsList(ParamEntity param){
         try {
             Map<String,Object> returnMap = demandService.getRequirementsList(param);
+            return R.ok().put("data",returnMap);
+        }catch (DemandException e){
+            return R.error(e.getCode(),e.getMessage());
+        }catch (Exception e){
+            LOG.error("数据库服务器异常："+e.getMessage());
+            return R.error();
+        }
+    }
+    /**
+     * @Description //TODO 访问计算
+     * @Author kg
+     * @Param [demandEntity]
+     * @Date 10:13 2019/7/22
+     */
+    @RequestMapping("/demandPlan")
+    @ResponseBody
+    public R demandPlan(@RequestBody DemandEntity demandEntity){
+        try {
+            Map<String,Object> returnMap =  demandService.demandPlan(demandEntity);
+            if((boolean)returnMap.get("status")) {
+                return R.ok().put("data", returnMap);
+            }else{
+                return R.error(returnMap.get("msg").toString());
+            }
+        }catch (DemandException e){
+            return R.error(e.getCode(),e.getMessage());
+        }catch (Exception e){
+            LOG.error("数据库服务器异常："+e.getMessage());
+            return R.error();
+        }
+    }
+
+    /**
+     * @Description //TODO 获取元任务详情分页获取
+     * @Author kg
+     * @Param
+     * @Date 10:13 2019/7/22
+     */
+    @RequestMapping("/getMetatask")
+    @ResponseBody
+    public R getMetatask(ParamEntity param){
+        try {
+            Map<String,Object> returnMap = demandService.getMetatask(param);
             return R.ok().put("data",returnMap);
         }catch (DemandException e){
             return R.error(e.getCode(),e.getMessage());

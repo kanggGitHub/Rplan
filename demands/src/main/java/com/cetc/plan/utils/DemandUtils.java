@@ -1,10 +1,14 @@
 package com.cetc.plan.utils;
 
 import com.cetc.plan.config.StaticConst;
-import com.cetc.plan.demand.model.CoretargetEntity;
-import com.cetc.plan.demand.model.SateliteEntity;
-import com.cetc.plan.demand.model.TargetInfoEntity;
+import com.cetc.plan.demand.dao.DemandMapper;
+import com.cetc.plan.demand.model.TargetVisitResponse;
+import com.cetc.plan.demand.model.TargetVisitSubEntity;
+import com.cetc.plan.demand.model.demand.CoretargetEntity;
+import com.cetc.plan.demand.model.demand.SateliteEntity;
+import com.cetc.plan.demand.model.demand.TargetInfoEntity;
 import com.cetc.plan.demand.model.param.ParamEntity;
+import com.cetc.plan.demand.service.DemandRedisService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -19,73 +23,26 @@ import java.util.stream.Collectors;
  * @Date 10:15 2019/6/20
  **/
 @Component
-public class DemandUtils {
+public class DemandUtils extends StringUtils{
 
     @Resource
     StaticConst staticConst;
 
+    @Resource
+    DemandMapper demandMapper;
+
+    @Resource
+    DemandRedisService demandRedisService;
+
     private static int  mbbh = 0;
+
 
 
     public DemandUtils() {
         super();
     }
 
-    /**
-     * @Description 判断List是否为空
-     * @Author kg
-     * @Param [mapList]
-     * @return boolean
-     * @Date 15:19 2019/6/20
-     */
-    public  boolean isEmpty(List<?> list){
-        if(list == null || list.isEmpty() || list.size()<=0  ){
-            return true;
-        }
-        return false;
-    }
 
-    /**
-     * @Description 判断List是否不为空
-     * @Author kg
-     * @Param [mapList]
-     * @return boolean
-     * @Date 15:19 2019/6/20
-     */
-    public  boolean isNotEmpty(List<?> list){
-        if(list == null || list.isEmpty() || list.size()<=0  ){
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * @Description //判断map是否为空
-     * @Author kg
-     * @Param [map]
-     * @return boolean
-     * @Date 15:25 2019/6/20
-     */
-    public  boolean isEmpyt(Map<?,?> map){
-        if(map == null || map.isEmpty()){
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @Description //判断map是否不为空
-     * @Author kg
-     * @Param [map]
-     * @return boolean
-     * @Date 15:25 2019/6/20
-     */
-    public  boolean isNotEmpyt(Map<?,?> map){
-        if(map == null || map.isEmpty() ){
-            return false;
-        }
-        return true;
-    }
 
     /**
      * @Description //TODO 获取程序生成需求标识号
@@ -158,6 +115,7 @@ public class DemandUtils {
      */
     public void setAllbh(List<TargetInfoEntity> list,Integer xqbh){
         String mblx = "";
+        String targetName = "";
         Integer mbbh ;
         for(TargetInfoEntity targetInfoEntity : list){
             mbbh = staticConst.MBXX_MBBH_ID+=1;
@@ -169,7 +127,9 @@ public class DemandUtils {
             if("area".equals(mblx)){
                 targetInfoEntity.setMblx(staticConst.MBXX_MBLX_QYMB_ID);
             }else if("aim".equals(mblx)){
+                targetName = demandMapper.getTargetName(targetInfoEntity.getZdmbbh());
                 targetInfoEntity.setMblx(staticConst.MBXX_MBLX_ZDMB_ID);
+                targetInfoEntity.setMbmc(targetName);
             }else if("region".equals(mblx)){
                 targetInfoEntity.setMblx(staticConst.MBXX_MBLX_XZQY_ID);
             }else if("point".equals(mblx)){
@@ -258,7 +218,7 @@ public class DemandUtils {
      * @Param [list, xqbh, mbbh]
      * @Date 17:00 2019/7/2
      */
-    public  List<SateliteEntity> getHandleSatelite(List<TargetInfoEntity> list,Integer xqbh){
+    public  List<SateliteEntity> getHandleSatelite(List<TargetInfoEntity> list){
         if(isEmpty(list))return null;
         List<SateliteEntity> sateliteEntities = new ArrayList<>();
         List<String> satellitesList = new ArrayList<>();
@@ -348,5 +308,81 @@ public class DemandUtils {
         }
 
     }
+    /**
+     * @Description //TODO 卫星资源匹配
+     * @Author kg
+     * @Param [list]
+     * @Date 15:12 2019/7/19
+     */
+    public void matchsRules(List<TargetInfoEntity> list) {
+        for(TargetInfoEntity targetInfoEntity : list){
+            List<String> statelites = targetInfoEntity.getSatellites();
+            if(isEmpty(statelites)){
+                statelites = demandMapper.getSatelliteRelus(targetInfoEntity.getFblyq(),targetInfoEntity.getRwlx());
+                targetInfoEntity.setSatellites(statelites);
+            }
+        }
+    }
 
+
+    /**
+     * @Description //TODO 根据卫星标识获取卫星类型
+     * @Author kg
+     * @Param
+     * @Date 15:17 2019/7/20
+     */
+    public String getSatelliteBybs(String wxbs){
+        List sateliteEntities =  demandRedisService.getListRedisByKey("satelliteInfos");
+        if(isEmpty((sateliteEntities))){
+           sateliteEntities = demandMapper.getSatelliteInfos();
+        }
+        for(SateliteEntity sateliteInfo : (List<SateliteEntity>)sateliteEntities){
+            if(wxbs.equals(sateliteInfo.getWxbs())){
+                return sateliteInfo.getWxlx();
+            }
+        }
+        return null;
+    }
+    /**
+     * @Description //TODO 匹配相应的目标编号 区域目标除外
+     * @Author kg
+     * @Param [valmap]
+     * @Date 16:52 2019/7/22
+     */
+    public Integer mergeTargetVS(List<TargetInfoEntity> valmap,String jd,String wd,String wxbs) {
+        String mbjd;
+        String mbwd;
+        List<String> mbwxbs;
+        Integer mbbh = 0;
+        for(TargetInfoEntity targetInfoEntity : valmap){
+            mbjd = targetInfoEntity.getJd();
+            mbwd = targetInfoEntity.getWd();
+            mbwxbs = targetInfoEntity.getSatellites();
+            if(targetInfoEntity.getMblx().equals(staticConst.MBXX_MBLX_QYMB_ID))continue;
+            if(formatDouble(jd).equals(formatDouble(mbjd)) && formatDouble(wd).equals(formatDouble(mbwd)) && mbwxbs.contains(wxbs)){
+                mbbh = targetInfoEntity.getMbbh();
+            }
+        }
+        return mbbh;
+    }
+
+    /**
+     * @Description //TODO 封装保存的实体对象
+     * @Author kg
+     * @Param [vslist, xqbh]
+     * @Date 10:12 2019/7/23
+     */
+    public List<TargetVisitSubEntity> mergeTargetVsInfo(List<TargetVisitResponse> vslist,Integer xqbh) {
+        List<TargetVisitSubEntity> subInfo = new ArrayList<>();
+        for(TargetVisitResponse targetVisitResponse : vslist){
+            TargetVisitSubEntity subEntity = new TargetVisitSubEntity();
+            subEntity.setYrwbh(targetVisitResponse.getYrwbh());
+            subEntity.setMbbh(targetVisitResponse.getMbbh());
+            subEntity.setJlbh(targetVisitResponse.getYrwbh());
+            subEntity.setXqbh(xqbh);
+            subEntity.setYrwzt(staticConst.XQXX_XQZT_YCH_ID);
+            subInfo.add(subEntity);
+        }
+        return subInfo;
+    }
 }

@@ -1,13 +1,11 @@
 package com.cetc.plan.demand.service;
 
-import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.cetc.plan.demand.model.CoretargetEntity;
-import com.cetc.plan.demand.model.DemandEntity;
+import com.cetc.plan.demand.model.TargetVisitResponse;
+import com.cetc.plan.demand.model.demand.DemandEntity;
+import com.cetc.plan.demand.model.demand.SateliteEntity;
 import com.cetc.plan.demand.model.param.ParamEntity;
 import com.cetc.plan.exception.DemandException;
-import org.apache.ibatis.annotations.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -29,14 +27,14 @@ public interface DemandService {
      * @Param []
      * @Date 15:11 2019/7/11
      */
-
+    @Transactional
     void updataRedis() throws  DemandException;
 
     /**
      * 查询所有国家---重点目标库
      * @return
      */
-
+    @Transactional
     List<String> selectAllCountries() throws DemandException;
 
     /**
@@ -44,7 +42,7 @@ public interface DemandService {
      * @param param
      * @return
      */
-
+    @Transactional
     Map<String,Object> selectTargetByName(ParamEntity param) throws DemandException;
 
 
@@ -54,8 +52,8 @@ public interface DemandService {
      * @Param [demandEntity]
      * @Date 11:02 2019/6/24
      */
-
-    void saveDemand(DemandEntity demandEntity) throws DemandException;
+    @Transactional
+    Integer saveDemand(DemandEntity demandEntity) throws DemandException;
 
     /**
      * @Description //TODO 需求创建获取卫星标识。
@@ -63,8 +61,8 @@ public interface DemandService {
      * @Param []
      * @Date 9:12 2019/6/26
      */
-
-    List<Map<String, Object>> getSatelliteInfos() throws DemandException;
+    @Transactional
+    List<SateliteEntity> getSatelliteInfos() throws DemandException;
 
     /**
      * @Description //TODO 获取区域内目标 ---重点目标坐标信息
@@ -72,7 +70,7 @@ public interface DemandService {
      * @Param []
      * @Date 11:12 2019/6/26
      */
-
+    @Transactional
     Map<String,Object> getAreaTarget(ParamEntity param) throws DemandException;
     /**
      * @Description //TODO
@@ -80,7 +78,7 @@ public interface DemandService {
      * @Param [page, vagueName, countryName]
      * @Date 11:06 2019/7/2
      */
-
+    @Transactional
     Map<String,Object> vagueCountryByname(ParamEntity param) throws DemandException;
 
     /**
@@ -89,7 +87,24 @@ public interface DemandService {
      * @Param []
      * @Date 16:04 2019/7/4
      */
-
+    @Transactional
     Map<String,Object> getRequirementsList(ParamEntity param) throws DemandException;
+    /**
+     * @Description //TODO 访问计算
+     * @Author kg
+     * @Param []
+     * @Date 8:28 2019/7/19
+     */
+    @Transactional
+    Map<String,Object> demandPlan(DemandEntity demandEntity) throws DemandException;
+    /**
+     * @Description //TODO 获取侦查元任务 分页
+     * @Author kg
+     * @Param [paramEntity]
+     * @Date 9:44 2019/7/22
+     */
+    @Transactional
+    Map<String, Object> getMetatask(ParamEntity paramEntity);
+
 
 }

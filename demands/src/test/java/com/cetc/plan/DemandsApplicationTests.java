@@ -1,15 +1,10 @@
 package com.cetc.plan;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cetc.plan.demand.dao.DemandMapper;
-import com.cetc.plan.demand.model.CoretargetEntity;
-import com.cetc.plan.demand.model.DemandEntity;
-import com.cetc.plan.demand.model.TargetInfoEntity;
-import com.cetc.plan.demand.model.param.ParamEntity;
+import com.cetc.plan.demand.model.ResultEntry;
+import com.cetc.plan.demand.service.CalcService;
 import com.cetc.plan.demand.service.DemandService;
 import com.cetc.plan.utils.DemandUtils;
-import com.cetc.plan.utils.R;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,15 +13,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Ignore
+//@Ignore
 public class DemandsApplicationTests {
 
     @Resource
@@ -35,24 +27,16 @@ public class DemandsApplicationTests {
     DemandService demandService;
     @Resource
     DemandUtils demandUtils;
+    @Resource
+    CalcService calcService;
 
     @Test
     public void contextLoads() {
-        List<Map<String, String>> saltelites = new ArrayList<>();
-        Map map = new HashMap();
-        map.put("mbbh","12");
-        map.put("wxbs","wx-123");
-        saltelites.add(map);
-        map = new HashMap();
-        map.put("mbbh","12");
-        map.put("wxbs","wx-123");
-        saltelites.add(map);
-        map = new HashMap();
-        map.put("mbbh","13");
-        map.put("wxbs","wx-123");
-        saltelites.add(null);
-
-        System.out.println();
+        List<double[]> list = new ArrayList<>();
+        double[] kd = {78.45687,12.4576};
+        list.add(kd);
+        ResultEntry<String> resultEntry =  calcService.createVisitCalcRequestFile("GF1","2019-07-19 9:11:24","2019-07-20 9:11:24",list);
+        System.out.println(resultEntry);
     }
 
 

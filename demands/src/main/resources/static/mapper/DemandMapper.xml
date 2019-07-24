@@ -4,11 +4,11 @@
 
     <!--  查询需求最后一条id信息  -->
     <select id="getLastInsertId" resultType="java.util.Map">
-       SELECT IFNULL(MAX(XX.XQBH),1) AS "XQBH",IFNULL(MAX(MB.MBBH),1) AS "MBBH" FROM XQCH_XQXX XX LEFT JOIN XQCH_XQXX_MBXX MB ON XX.XQBH = MB.XQBH
+       SELECT IFNULL(MAX(XX.XQBH),0) AS "XQBH",IFNULL(MAX(MB.MBBH),0) AS "MBBH" FROM XQCH_XQXX XX LEFT JOIN XQCH_XQXX_MBXX MB ON XX.XQBH = MB.XQBH
     </select>
 
     <!--  模糊匹配国家名称 城市列表  -->
-    <select id="vagueCountryByname" resultType="com.cetc.plan.demand.model.CoretargetEntity">
+    <select id="vagueCountryByname" resultType="com.cetc.plan.demand.model.demand.CoretargetEntity">
         select
             <choose>
                 <when test="vagueName  != null and vagueName != '' and countryName == null">
@@ -64,7 +64,7 @@
     </select>
 
     <!--  根据国家名称查询其城市区域  -->
-    <select id="selectTargetByName" resultType="com.cetc.plan.demand.model.CoretargetEntity">
+    <select id="selectTargetByName" resultType="com.cetc.plan.demand.model.demand.CoretargetEntity">
         select
         <if test="countFlag != null ">
             count(DISTINCT XZ.ZDMBBH) AS "totalCount"
@@ -96,13 +96,21 @@
     </select>
 
     <!--  查询星地资源卫星代号  -->
-    <select id="getSatelliteInfos" resultType="java.util.Map">
+    <select id="getSatelliteInfos" resultType="com.cetc.plan.demand.model.demand.SateliteEntity">
          SELECT
-                WXBS AS "wxbs", WXMC AS "wxmc" ,WXYT AS "wxyt"
-        FROM    XDZY_WX
+                XW.WXBS AS "wxbs",
+                XW.WXMC AS "wxmc" ,
+                XW.WXYT AS "wxyt",
+                XW.RWDH as "rwdh",
+                XW.WXDH as "wxdh",
+                XD.FIELDDATA as "wxlx",
+                XW.ZT as "zt"
+        FROM    XDZY_WX XW
+        LEFT JOIN XQCH_DICTIONARY XD ON XD.ID=XW.WXLX
+        where  XW.ZT != '6002'
     </select>
     <!--  查询重点目标库坐标信息 区域搜索  -->
-    <select id="getAreaTarget"  resultType="com.cetc.plan.demand.model.CoretargetEntity">
+    <select id="getAreaTarget"  resultType="com.cetc.plan.demand.model.demand.CoretargetEntity">
         select
         <if test="countFlag != null ">
             count(DISTINCT XZ.ZDMBBH) AS "totalCount"
@@ -143,8 +151,14 @@
         select id,fieldname,fielddata,classification from XQCH_DICTIONARY
     </select>
 
+    <!--  ===========================================保存需求信息========================================  -->
+
+    <!-- 查询重点目标名称 -->
+    <select id="getTargetName" resultType="java.lang.String">
+        select ZDMBMC as "zdmbmc" from XQCH_ZDMBK where ZDMBBH = #{zdmbbh}
+    </select>
     <!--  保存需求录入信息  -->
-    <insert id="saveDemand" parameterType="com.cetc.plan.demand.model.DemandEntity">
+    <insert id="saveDemand" parameterType="com.cetc.plan.demand.model.demand.DemandEntity">
         insert into
             XQCH_XQXX (XQBH,XQBSH,XQMC,RWLX,YXQKSSJ,YXQJSSJ,YXJ,XQZW,LY,GCPC,WJNR)
         values
@@ -203,10 +217,11 @@
     </insert>
 
 
+
     <!--  =============================================需求列表=================================================  -->
 
     <!--  需求列表 复杂项 -->
-    <select id="getRequirementsList" parameterType="java.util.Map" resultType="com.cetc.plan.demand.model.DemandEntity">
+    <select id="getRequirementsList" parameterType="java.util.Map" resultType="com.cetc.plan.demand.model.demand.DemandEntity">
 
             SELECT
             <if test="countFlag != null ">
@@ -307,7 +322,8 @@
         where
             XX.XQBH = #{xqbh}
     </select>
-    <select id="getRequirementZbInfo" resultType="com.cetc.plan.demand.model.TargetInfoEntity">
+    <!--  获取需求目标信息、目标坐标信息  -->
+    <select id="getRequirementZbInfo" resultType="com.cetc.plan.demand.model.demand.TargetInfoEntity">
         select  distinct
                 MB.XQBH         as "xqbh",/*需求编号*/
                 MB.MBBH         as "mbbh",/*目标编号*/
@@ -327,17 +343,17 @@
         left join XQCH_ZDMBK ZDMB ON ZDMB.ZDMBBH = MB.ZDMBBH
         where    MB.XQBH = #{xqbh}
     </select>
-
+    <!-- 获取卫星信息 -->
     <select id="getSatelites" resultType="java.util.Map">
         select MBBH,WXBS,WXMC from XQCH_XQXX_MBXX_WXYQ where XQBH=#{xqhb}
     </select>
 
     <!--  ==========================================更新需求信息=============================================  -->
+
     <!--  根据需求编号查询需求状态  -->
     <select id="getRequirementStatu" resultType="java.lang.String">
         select XQZT from XQCH_XQXX_XQZTXX where XQBH = #{xqbh}
     </select>
-
 
     <!--  删除库里已有的数据  -->
     <delete id="delDemandInfo">
@@ -347,5 +363,87 @@
         DELETE FROM XQCH_XQXX_XQZTXX WHERE XQBH = #{xqbh};
         DELETE FROM XQCH_XQXX WHERE XQBH = #{xqbh};
     </delete>
+
+
+
+    <!--  ==============================================访问计算 元任务===================================================  -->
+    <!-- 获取卫星资源匹配   -->
+    <select id="getSatelliteRelus" resultType="java.lang.String">
+        select ZWP.WXBS,ZWP.WXLX from XDZY_WX_PPGZ ZWP
+        <where>
+            ZWP.FBL &lt;= #{fblyq}
+            <if test="rwlx == '7'">
+                ZWP.GDMBJS != '低'
+            </if>
+            <if test="rwlx == '8'">
+                ZWP.QYMBSS != '低'
+            </if>
+            <if test="rwlx == '9'">
+                ZWP.DMBGZJS != '低'
+            </if>
+        </where>
+    </select>
+
+    <!--  获取元任务信息————访问计算结果  -->
+    <select id="getMetatask" resultType="com.cetc.plan.demand.model.TargetVisitResponse">
+        select
+            <if test="countFlag != null ">
+                count(DISTINCT XZ.YRWBH) AS "totalCount"
+            </if>
+            <if test="countFlag == null ">
+                   XZ.YRWBH as "yrwbh",     XZ.WXBS as "wxbs",          XZ.XYRWBH as "xyrwbh",
+                   XZ.YXCX as "yxcx",       XZ.ZXJD as "zxjd",          XZ.ZXWD as "zxwd",          XZ.ZSJJD as "zsjjd",
+                   XZ.ZSJWD as "zsjwd",     XZ.YSJJD as "ysjjd",        XZ.YSJWD as "ysjwd",        XZ.ZXJJD as "zxjjd",
+                   XZ.ZXJWD as "zxjwd",     XZ.YXJJD as "yxjjd",        XZ.YXJWD as "yxjwd",        XZ.GDQH as "gdqh",
+                   XZ.GCKSSJ as "gckssj",   XZ.GCJSSJ as "gcjssj",      XZ.ZXDFWSJ as "zxdfwsj",    XZ.CSJ as "csj",
+                   XZ.QFYJ as "qfyj",       XZ.HFYJ as "hfyj",          XZ.TYGDJ as "tygdj",        XZ.KXBW as "kxbw",
+                   XZ.YLZ as "ylz",         XZ.APQK as "apqk",          XZ.YXRWY as "yxrwy",        XZ.YSYRWBH as "ysyrwbh",
+                   XZ.RKSJ as "rksj",       XWP.CGQBS as "cgqbs",       XWP.FBL as "fbl",           XWP.GZMS as "cgqms",
+                   XXM.MBMC as "mbmc",      XXM.MBBH as "mbbh"
+            </if>
+            from XQCH_ZCYRW XZ
+        left join XDZY_WX_PPGZ XWP on XZ.WXBS = XWP.WXBS
+        left join XQCH_ZCYRW_MBXX XZM on XZM.YRWBH = XZ.YRWBH
+        left join XQCH_XQXX_MBXX XXM on XXM.MBBH = XZM.MBBH
+        where XZM.XQBH = #{xqbh}
+        order by  XXM.MBBH ASC,XZ.RKSJ DESC,XZ.YRWBH ASC
+            <if test="countFlag == null ">
+                limit #{currentPage},#{pageSize}
+            </if>
+    </select>
+
+    <!--  保存元任务信息————访问计算结果  -->
+    <insert id="saveMetatask">
+        insert into XQCH_ZCYRW (YRWBH,WXBS,CGQBS,CGQMS,YXCX,ZXJD,ZXWD,ZSJJD,ZSJWD,YSJJD,YSJWD,ZXJJD,ZXJWD,
+        YXJJD,YXJWD,GDQH,GCKSSJ,GCJSSJ,ZXDFWSJ,CSJ,QFYJ,HFYJ,TYGDJ,KXBW,YLZ,APQK,YXRWY,YSYRWBH,XYRWBH)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.yrwbh},#{item.wxbs},#{item.cgqbs},#{item.cgqms},#{item.yxcx},#{item.zxjd},#{item.zxwd},#{item.zsjjd},
+            #{item.zsjwd},#{item.ysjjd},#{item.ysjwd},#{item.zxjjd},#{item.zxjwd},#{item.yxjjd},#{item.yxjwd},#{item.gdqh},
+            #{item.gckssj},#{item.gcjssj},#{item.zxdfwsj},#{item.csj},#{item.qfyj},#{item.hfyj},#{item.tygdj},#{item.kxbw},
+            #{item.ylz},#{item.apqk},#{item.yxrwy},#{item.ysyrwbh},#{item.xyrwbh})
+        </foreach>
+    </insert>
+    <!--  保存元任务信息————目标信息  -->
+    <insert id="saveMetataskTargetInfo">
+        insert into XQCH_ZCYRW_MBXX (YRWBH,XQBH,MBBH)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.yrwbh},#{item.xqbh},#{item.mbbh})
+        </foreach>
+    </insert>
+    <!--  保存元任务信息————状态信息  -->
+    <insert id="saveMetataskStatus">
+        insert into XQCH_ZCYRW_ZTJL (YRWBH,JLBH,GXSJ,GXYY,CZR,YRWZT)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.yrwbh},#{item.jlbh},#{item.gxsj},#{item.gxyy},#{item.czr},#{item.yrwzt})
+        </foreach>
+    </insert>
+    <!--  查询元任务最后一条id信息  -->
+    <select id="getLastMetataskId" resultType="java.lang.Integer">
+       SELECT IFNULL(MAX(XZ.YRWBH),0) AS "YRWBH" FROM XQCH_ZCYRW XZ
+    </select>
+
 
 </mapper>

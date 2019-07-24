@@ -46,3 +46,55 @@ logging:
     com.cetc.plan.demand.dao : debug
 
 
+myCustom:
+  # udp
+  udp:
+    sendAddr: localhost
+    sendPort: 8645
+    receivePort: 8047
+    # 访问超时时长，单位秒
+    timeout: 120
+    # 数据内存存储时长，单位分
+    tempTimeOut: 5
+
+  # 共享文件夹基础路径
+  shareDir:
+    basePath: //172.19.9.106/ftp/访问计算临时文件/
+
+  # 单次请求访问计算最大天数
+  singleMaxFwDay: 3
+
+  # 轨道圈数
+  gdqs:
+    # 默认不同圈数访问最小时间间隔，单位毫秒
+    gdqIntervalTime: 1800000
+    # 区域访问前后添加时间，单位毫秒
+    areaAddTime: 1800000
+
+  # 点处理
+  pointDispose:
+    maxSize: 300000 #最大点数
+    range: 20 #两点间最大距离，单位千米
+    threePointMaxRage: 20 #三间最大距离，单位千米
+
+  # 指向计算
+  point:
+    requestFile: #请求文件
+      addTimeValue: 5000 #前后添加时间毫秒值
+      tdIntervalTime: 5000 #条带点间隔时长毫秒值
+
+  # 覆盖率计算
+  fgl:
+    maxFullCoverDay: 15 #全覆盖最大处理天数
+
+  bxdd:
+    useBxdd: true
+    url: http://172.19.9.106:8082/insertTask?taskMethod=MBFWJS
+    maxInvokeThreadNum: 5
+
+  # 百分比小数点位数
+  accuracy: 4
+
+
+
+
