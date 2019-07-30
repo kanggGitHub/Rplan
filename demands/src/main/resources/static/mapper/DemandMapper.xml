@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cetc.plan.demand.dao.DemandMapper">
 
+
     <!--  查询需求最后一条id信息  -->
     <select id="getLastInsertId" resultType="java.util.Map">
        SELECT IFNULL(MAX(XX.XQBH),0) AS "XQBH",IFNULL(MAX(MB.MBBH),0) AS "MBBH" FROM XQCH_XQXX XX LEFT JOIN XQCH_XQXX_MBXX MB ON XX.XQBH = MB.XQBH
@@ -399,12 +400,13 @@
                    XZ.QFYJ as "qfyj",       XZ.HFYJ as "hfyj",          XZ.TYGDJ as "tygdj",        XZ.KXBW as "kxbw",
                    XZ.YLZ as "ylz",         XZ.APQK as "apqk",          XZ.YXRWY as "yxrwy",        XZ.YSYRWBH as "ysyrwbh",
                    XZ.RKSJ as "rksj",       XWP.CGQBS as "cgqbs",       XWP.FBL as "fbl",           XWP.GZMS as "cgqms",
-                   XXM.MBMC as "mbmc",      XXM.MBBH as "mbbh"
+                   XXM.MBMC as "mbmc",      XXM.MBBH as "mbbh",         XX.XQMC as "xqmc"
             </if>
             from XQCH_ZCYRW XZ
         left join XDZY_WX_PPGZ XWP on XZ.WXBS = XWP.WXBS
         left join XQCH_ZCYRW_MBXX XZM on XZM.YRWBH = XZ.YRWBH
         left join XQCH_XQXX_MBXX XXM on XXM.MBBH = XZM.MBBH
+        left join XQCH_XQXX XX on XX.XQBH = XZM.XQBH
         where XZM.XQBH = #{xqbh}
         order by  XXM.MBBH ASC,XZ.RKSJ DESC,XZ.YRWBH ASC
             <if test="countFlag == null ">
@@ -444,6 +446,13 @@
     <select id="getLastMetataskId" resultType="java.lang.Integer">
        SELECT IFNULL(MAX(XZ.YRWBH),0) AS "YRWBH" FROM XQCH_ZCYRW XZ
     </select>
+    <select id="mergeDefaultTime" resultType="java.lang.Double">
+        select  MRGCSC as "mrgcsc" from XDZY_WX_GXCGQGZMS where WXBS = #{wxbs}
+    </select>
 
+    <!--  更改需求状态————已取消  -->
+    <update id="demandCancel">
+        update XQCH_XQXX_XQZTXX set XQZT = #{xqzt} where XQBH = #{xqbh}
+    </update>
 
 </mapper>

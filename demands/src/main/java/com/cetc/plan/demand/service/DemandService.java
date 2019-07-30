@@ -106,5 +106,11 @@ public interface DemandService {
     @Transactional
     Map<String, Object> getMetatask(ParamEntity paramEntity);
 
-
+    /**
+     * @Description //TODO 取消需求
+     * @Author kg
+     * @Param [param]
+     * @Date 15:27 2019/7/24
+     */
+    void demandCancel(ParamEntity param);
 }

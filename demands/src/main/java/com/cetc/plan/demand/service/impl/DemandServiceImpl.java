@@ -352,14 +352,54 @@ public class DemandServiceImpl extends ServiceImpl implements DemandService {
      * @Param []
      * @Date 8:28 2019/7/19
      */
+    @SuppressWarnings("all")
     @Override
     public Map<String,Object> demandPlan(DemandEntity demandEntity) {
         try {
+
             YRWBH=staticConst.ZCYRW_YRWBH_ID;
-            //保存需求信息
-            saveDemand(demandEntity);
+            //返回的结果集
+            Map<String,Object> returnMap = new HashMap<>();
             //获取所有目标信息
-            List<TargetInfoEntity> valmap = demandEntity.getTaregetinfolist();
+            List<TargetInfoEntity> valmap = new ArrayList<>();
+            Integer xqbh = demandEntity.getXqbh();
+            List<Integer> xqbhList = demandEntity.getDenamdsId();
+            if(xqbh!=null){
+                //查询需求状态
+                String status = demandMapper.getRequirementStatu(xqbh);
+                if(status != null && !status.equals(staticConst.XQXX_XQZT_WCH_ID)){
+                    throw new DemandException(ResultCode.FAILURE.getValue(),"需求已筹划或已取消，不能进行筹划！");
+                }
+                //获取所有目标信息
+                valmap = demandMapper.getRequirementZbInfo(xqbh);
+                //获取卫星标识并处理
+                List<Map<String,Object>> saltelites = demandMapper.getSatelites(xqbh);
+                demandUtils.mergeSaltelites(valmap,saltelites);
+                returnMap.put("xqbh",xqbh);
+            }else if(demandUtils.isNotEmpty(xqbhList)){
+                String status;
+                List<TargetInfoEntity> targetmap;
+                List<Map<String,Object>> saltelites;
+                for(Integer demandId : xqbhList){
+                    //查询需求状态
+                    status = demandMapper.getRequirementStatu(xqbh);
+                    if(status != null && !status.equals(staticConst.XQXX_XQZT_WCH_ID)){
+                        throw new DemandException(ResultCode.FAILURE.getValue(),"需求已筹划或已取消，不能进行筹划！");
+                    }
+                    targetmap = demandMapper.getRequirementZbInfo(demandId);
+                    //获取卫星标识并处理
+                    saltelites = demandMapper.getSatelites(demandId);
+                    demandUtils.mergeSaltelites(targetmap,saltelites);
+                    valmap.addAll(targetmap);
+                }
+                returnMap.put("demandsId",xqbhList);
+            }else{
+                //保存需求信息
+                saveDemand(demandEntity);
+                //获取所有目标信息
+                valmap = demandEntity.getTaregetinfolist();
+                returnMap.put("xqbh",demandEntity.getXqbh());
+            }
 
             //卫星资源匹配
             demandUtils.matchsRules(valmap);
@@ -368,34 +408,14 @@ public class DemandServiceImpl extends ServiceImpl implements DemandService {
             //卫星对应的目标经纬度集合
             Map<String,List<double[]>> statelliteMap = new HashMap<>();
             //目标携带的卫星
-            List<String> statellites ;
+            List<String> statellites = new ArrayList<>();
             //卫星集合
             List<String> allStatellites = new ArrayList<>();
             //根据卫星分组 不计算区域跟行政与区域数据
-            for(TargetInfoEntity targetInfoEntity:valmap){
-                if(targetInfoEntity.getMblx().equals(staticConst.MBXX_MBLX_QYMB_ID)
-                        ||targetInfoEntity.getMblx().equals(staticConst.MBXX_MBLX_XZQY_ID))continue;
-                statellites = targetInfoEntity.getSatellites();
-                for(String wxbs : statellites){
-                    if(!allStatellites.contains(wxbs)){
-                        allStatellites.add(wxbs);
-                    }
-                    if(statelliteMap.containsKey(wxbs)){
-                        List<double[]> points = statelliteMap.get(wxbs);
-                        double[] point = {Double.valueOf(targetInfoEntity.getJd()),Double.valueOf(targetInfoEntity.getWd())};
-                        points.add(point);
-                        statelliteMap.put(wxbs,points);
-                    }else{
-                        List<double[]> points = new ArrayList<>();
-                        double[] point = {Double.valueOf(targetInfoEntity.getJd()),Double.valueOf(targetInfoEntity.getWd())};
-                        points.add(point);
-                        statelliteMap.put(wxbs,points);
-                    }
-                }
-            }
+            demandUtils.mergeStatellite(valmap,statellites,statelliteMap,allStatellites);
             // 访问计算合集
             List<TargetVisitResponse> visitResult = new ArrayList<>();
-            Map<String,Object> returnMap = new HashMap<>();
+
             //进行访问计算
             ResultEntry<List<TargetVisitResponse>> listResult = new ResultEntry<>();
             for(String wxbs : allStatellites){
@@ -420,6 +440,7 @@ public class DemandServiceImpl extends ServiceImpl implements DemandService {
             }
             if(demandUtils.isNotEmpty(visitResult)){
                 //保存元任务信息
+                demandUtils.mergeSatelliteTime(visitResult);
                 demandMapper.saveMetatask(visitResult);
                 LOG.info("保存元任务信息完成》》》》》》》》》》》》》》》》》》》》》》》》");
 
@@ -431,7 +452,6 @@ public class DemandServiceImpl extends ServiceImpl implements DemandService {
                 LOG.info("保存元任务————状态信息完成》》》》》》》》》》》》》》》》》》》》》》》》");
             }
             returnMap.put("status",true);
-            returnMap.put("xqbh",demandEntity.getXqbh());
             return returnMap;
         }catch (Throwable t){
             staticConst.ZCYRW_YRWBH_ID=YRWBH;
@@ -468,6 +488,28 @@ public class DemandServiceImpl extends ServiceImpl implements DemandService {
         }catch (Throwable throwable){
             LOG.error(throwable.getMessage());
             throw new DemandException(ResultCode.DATABASES_OPERATION_FAIL.getValue(),"分页查询元任务信息失败: getMetatask");
+        }
+    }
+    /**
+     * @Description //TODO 取消需求
+     * @Author kg
+     * @Param [param]
+     * @Date 15:27 2019/7/24
+     */
+    @Override
+    public void demandCancel(ParamEntity param) {
+        try {
+            Integer xqbh = param.getXqbh();
+            //查询需求状态
+            String status = demandMapper.getRequirementStatu(xqbh);
+            if(!status.equals(staticConst.XQXX_XQZT_WCH_ID)){
+                throw new DemandException(ResultCode.FAILURE.getValue(),"需求已筹划或已取消，不能取消！");
+            }
+            String xqzt = staticConst.XQXX_XQZT_YQX_ID;
+            demandMapper.demandCancel(xqbh, xqzt);
+        }catch (Throwable t){
+            LOG.error(t.getMessage());
+            throw new DemandException(ResultCode.DATABASES_OPERATION_FAIL.getValue(),"取消需求失败: demandCancel");
         }
     }
 

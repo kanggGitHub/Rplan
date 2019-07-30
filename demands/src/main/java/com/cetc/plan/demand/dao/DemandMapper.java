@@ -207,5 +207,18 @@ public interface DemandMapper  extends BaseMapper {
      * @Date 8:47 2019/7/24
      */
     int saveMetataskStatus(List<TargetVisitSubEntity> subInfo);
-
+    /**
+     * @Description //TODO 取消需求
+     * @Author kg
+     * @Param [xqbh, xqzt]
+     * @Date 9:47 2019/7/26
+     */
+    int demandCancel(Integer xqbh,String xqzt);
+    /**
+     * @Description //TODO 查询卫星的默认观测时长
+     * @Author kg
+     * @Param [wxbs]
+     * @Date 9:47 2019/7/26
+     */
+    Double mergeDefaultTime(String wxbs);
 }

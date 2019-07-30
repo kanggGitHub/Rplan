@@ -98,6 +98,54 @@ public class TimeUtil {
     }
 
     /**
+     * @Description //TODO 对小时进行换算 然后进行时间加减
+     * @Author kg
+     * @Param [dateStr, addValue, formatStr]
+     * @Date 9:37 2019/7/26
+     */
+    public static String timeStrAddValue(String dateStr, Double addValue, String formatStr) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Long longTime =(addValue.longValue()*3600000);
+        if (formatStr != null && !"".equals(formatStr)) {
+            sdf = new SimpleDateFormat(formatStr);
+        }
+        String result = null;
+        try {
+            Date date = sdf.parse(dateStr);
+            System.out.println(date.getTime());
+            long newTime = date.getTime() + longTime;
+            result = sdf.format(new Date(newTime));
+        } catch (ParseException e) {
+            logger.error(dateStr + "  ParseException", e);
+        }
+        return result;
+    }
+
+    /**
+     * @Description //TODO 对小时进行换算 然后进行时间减
+     * @Author kg
+     * @Param [dateStr, addValue, formatStr]
+     * @Date 9:37 2019/7/26
+     */
+    public static String timeStrSubValue(String dateStr, Double addValue, String formatStr) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Long longTime =(addValue.longValue()*3600000);
+        if (formatStr != null && !"".equals(formatStr)) {
+            sdf = new SimpleDateFormat(formatStr);
+        }
+        String result = null;
+        try {
+            Date date = sdf.parse(dateStr);
+            System.out.println(date.getTime());
+            long newTime = date.getTime() - longTime;
+            result = sdf.format(new Date(newTime));
+        } catch (ParseException e) {
+            logger.error(dateStr + "  ParseException", e);
+        }
+        return result;
+    }
+
+    /**
      * 时间字符串大小比较
      *
      * @param timeStr1  时间字符串1

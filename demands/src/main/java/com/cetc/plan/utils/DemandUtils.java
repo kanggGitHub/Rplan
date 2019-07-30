@@ -47,7 +47,7 @@ public class DemandUtils extends StringUtils{
     /**
      * @Description //TODO 获取程序生成需求标识号
      * @Author kg
-     * @Param [code] 需求编号
+     * @Param [code] 需求标识号
      * @Date 15:53 2019/7/11
      */
     public static String getDemandSign(String code) {
@@ -344,7 +344,7 @@ public class DemandUtils extends StringUtils{
         return null;
     }
     /**
-     * @Description //TODO 匹配相应的目标编号 区域目标除外
+     * @Description //TODO 匹配相应的目标编号 行政区域、区域目标除外--访问计算
      * @Author kg
      * @Param [valmap]
      * @Date 16:52 2019/7/22
@@ -358,7 +358,7 @@ public class DemandUtils extends StringUtils{
             mbjd = targetInfoEntity.getJd();
             mbwd = targetInfoEntity.getWd();
             mbwxbs = targetInfoEntity.getSatellites();
-            if(targetInfoEntity.getMblx().equals(staticConst.MBXX_MBLX_QYMB_ID))continue;
+            if(targetInfoEntity.getMblx().equals(staticConst.MBXX_MBLX_QYMB_ID)||targetInfoEntity.getMblx().equals(staticConst.MBXX_MBLX_XZQY_ID))continue;
             if(formatDouble(jd).equals(formatDouble(mbjd)) && formatDouble(wd).equals(formatDouble(mbwd)) && mbwxbs.contains(wxbs)){
                 mbbh = targetInfoEntity.getMbbh();
             }
@@ -367,7 +367,7 @@ public class DemandUtils extends StringUtils{
     }
 
     /**
-     * @Description //TODO 封装保存的实体对象
+     * @Description //TODO 封装保存的实体对象---访问计算
      * @Author kg
      * @Param [vslist, xqbh]
      * @Date 10:12 2019/7/23
@@ -384,5 +384,61 @@ public class DemandUtils extends StringUtils{
             subInfo.add(subEntity);
         }
         return subInfo;
+    }
+    /**
+     * @Description //TODO 按照卫星分组 处理目标经纬度--访问计算
+     * @Author kg
+     * @Param [valmap 目标集合, statellites目标携带的卫星集合, statelliteMap每个卫星分组后携带的经纬度, allStatellites所有卫星标识集合]
+     * @Date 14:47 2019/7/24
+     */
+    public void mergeStatellite(List<TargetInfoEntity> valmap, List<String> statellites, Map<String, List<double[]>> statelliteMap,List<String> allStatellites) {
+        for(TargetInfoEntity targetInfoEntity:valmap){
+            if(targetInfoEntity.getMblx().equals(staticConst.MBXX_MBLX_QYMB_ID)
+                    ||targetInfoEntity.getMblx().equals(staticConst.MBXX_MBLX_XZQY_ID))continue;
+            statellites = targetInfoEntity.getSatellites();
+            for(String wxbs : statellites){
+                if(!allStatellites.contains(wxbs)){
+                    allStatellites.add(wxbs);
+                }
+                if(statelliteMap.containsKey(wxbs)){
+                    List<double[]> points = statelliteMap.get(wxbs);
+                    double[] point = {Double.valueOf(targetInfoEntity.getJd()),Double.valueOf(targetInfoEntity.getWd())};
+                    points.add(point);
+                    statelliteMap.put(wxbs,points);
+                }else{
+                    List<double[]> points = new ArrayList<>();
+                    double[] point = {Double.valueOf(targetInfoEntity.getJd()),Double.valueOf(targetInfoEntity.getWd())};
+                    points.add(point);
+                    statelliteMap.put(wxbs,points);
+                }
+            }
+        }
+    }
+    /**
+     * @Description //TODO 处理卫星观测开始时间 跟观测结束时间
+     * @Author kg
+     * @Param [visitResult]
+     * @Date 9:52 2019/7/26
+     */
+    public void mergeSatelliteTime(List<TargetVisitResponse> visitResult) {
+        Map<String,List<TargetVisitResponse>> collect = visitResult.stream().collect(Collectors.groupingBy(t -> t.getWxbs()));
+        Set<String> keys = collect.keySet();
+        String startTime = null;
+        String endTime = null;
+        String centralTime = null;
+        List<TargetVisitResponse> targetInfos = new ArrayList<>();
+        for(String wxbs : keys){
+            Double defaultTime = demandMapper.mergeDefaultTime(wxbs);
+            if(defaultTime==null)continue;
+            targetInfos = collect.get(wxbs);
+            for(TargetVisitResponse targetVisitResponse : targetInfos){
+                centralTime = targetVisitResponse.getZxdfwsj();
+                if(centralTime==null||centralTime=="")continue;
+                startTime = TimeUtil.timeStrAddValue(centralTime,defaultTime,null);
+                endTime = TimeUtil.timeStrSubValue(centralTime,defaultTime,null);
+                targetVisitResponse.setGckssj(startTime);
+                targetVisitResponse.setGcjssj(endTime);
+            }
+        }
     }
 }

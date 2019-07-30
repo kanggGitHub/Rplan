@@ -339,5 +339,27 @@ public class DemandController {
             return R.error();
         }
     }
+    /**
+     * @Description //TODO
+     * @Author kg
+     * @Param [param]
+     * @Date 15:36 2019/7/24
+     */
+    @RequestMapping("/demandCancel")
+    @ResponseBody
+    public R demandCancel(ParamEntity param){
+        try{
+            if(param.getXqbh()==null){
+                return R.error("参数错误");
+            }
+            demandService.demandCancel(param);
+            return R.ok();
+        }catch (DemandException e){
+            return R.error(e.getCode(),e.getMessage());
+        }catch (Exception e){
+            LOG.error("数据库服务器异常："+e.getMessage());
+            return R.error();
+        }
+    }
 }
 

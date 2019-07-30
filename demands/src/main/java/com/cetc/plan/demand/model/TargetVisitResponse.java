@@ -34,6 +34,11 @@ public class TargetVisitResponse implements Serializable {
     private String mbmc;
 
     /**
+     * 需求名称
+     */
+    private String xqmc;
+
+    /**
      * 卫星标识
      */
     @TableField("WXBS")
