@@ -1,6 +1,5 @@
 package com.cetc.plan.demand.service;
 
-import com.cetc.plan.demand.model.TargetVisitResponse;
 import com.cetc.plan.demand.model.demand.DemandEntity;
 import com.cetc.plan.demand.model.demand.SateliteEntity;
 import com.cetc.plan.demand.model.param.ParamEntity;
@@ -104,7 +103,7 @@ public interface DemandService {
      * @Date 9:44 2019/7/22
      */
     @Transactional
-    Map<String, Object> getMetatask(ParamEntity paramEntity);
+    Map<String, Object> getMetatask(ParamEntity paramEntity)throws DemandException;
 
     /**
      * @Description //TODO 取消需求
@@ -112,5 +111,6 @@ public interface DemandService {
      * @Param [param]
      * @Date 15:27 2019/7/24
      */
-    void demandCancel(ParamEntity param);
+    @Transactional
+    void demandCancel(ParamEntity param)throws DemandException;
 }

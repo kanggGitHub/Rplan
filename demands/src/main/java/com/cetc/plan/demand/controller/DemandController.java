@@ -9,10 +9,9 @@ import com.cetc.plan.demand.model.param.ParamEntity;
 import com.cetc.plan.demand.service.DemandRedisService;
 import com.cetc.plan.demand.service.DemandService;
 import com.cetc.plan.exception.DemandException;
-import com.cetc.plan.utils.LogUtils;
 import com.cetc.plan.utils.R;
 import com.cetc.plan.config.ResultCode;
-import org.slf4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,11 +30,11 @@ import java.util.Map;
  * @author kg
  * @since 2019-06-20
  */
+@Slf4j
 @CrossOrigin
 @Controller
 @RequestMapping("/demands")
 public class DemandController {
-    private static final Logger LOG = LogUtils.getLogger(DemandController.class);
 
     @Resource
     DemandService demandService;
@@ -60,12 +59,12 @@ public class DemandController {
                 return R.error("用户名或密码错误！");
             }
             demandService.updataRedis();
-            return R.ok("更新成功");
+            return R.ok("缓存更新成功");
         }catch (DemandException e){
-            LOG.error("更新失败："+e.getMessage());
+            log.error("缓存更新失败："+e.getMessage());
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("更新失败："+e.getMessage());
+            log.error("缓存更新失败：",e);
             return R.error();
         }
     }
@@ -96,7 +95,7 @@ public class DemandController {
             }
             return R.ok().put("data",list);
         }catch (Exception e){
-            LOG.error("缓存数据异常："+e.getMessage());
+            log.error("缓存数据异常：",e);
             return R.error("缓存数据异常");
         }
     }
@@ -115,10 +114,10 @@ public class DemandController {
             List<JSONObject> list  = (List<JSONObject>) map.get("REQUIREMENTTYPE");
             return R.ok().put("data",list);
         }catch (DemandException e){
-            LOG.error("查询异常："+e.getMessage());
+            log.error("查询异常："+e.getMessage());
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
+            log.error("服务器异常：",e);
             return R.error();
         }
     }
@@ -137,10 +136,10 @@ public class DemandController {
             List<JSONObject> list  = (List<JSONObject>) map.get("REQUIREMENTSTATUS");
             return R.ok().put("data",list);
         }catch (DemandException e){
-            LOG.error("查询异常："+e.getMessage());
+            log.error("查询异常："+e.getMessage());
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
+            log.error("服务器异常：",e);
             return R.error();
         }
     }
@@ -159,10 +158,10 @@ public class DemandController {
             List<String> countryList = demandService.selectAllCountries();
             return R.ok().put("data",countryList);
         }catch (DemandException e){
-            LOG.error(e.getMessage());
+            log.error(e.getMessage());
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
+            log.error("服务器异常：",e);
             return R.error();
         }
     }
@@ -185,7 +184,7 @@ public class DemandController {
         }catch (DemandException e){
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
+            log.error("服务器异常：",e);
             return R.error();
         }
     }
@@ -204,10 +203,10 @@ public class DemandController {
             Integer xqbh = demandService.saveDemand(demandModel);
             return R.ok().put("data",xqbh);
         }catch (DemandException e){
-            LOG.error("查询异常："+e.getMessage());
+            log.error("查询异常："+e.getMessage());
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
+            log.error("服务器异常：",e);
             return R.error();
         }
     }
@@ -225,10 +224,10 @@ public class DemandController {
             List<SateliteEntity> satelliteInfos = demandService.getSatelliteInfos();
             return R.ok().put("data",satelliteInfos);
         }catch (DemandException e){
-            LOG.error("查询异常："+e.getMessage());
+            log.error("查询异常："+e.getMessage());
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
+            log.error("服务器异常：",e);
             return R.error();
         }
     }
@@ -248,10 +247,10 @@ public class DemandController {
             Map<String,Object> returnMap = demandService.getAreaTarget(param);
             return R.ok().put("data",returnMap);
         }catch (DemandException e){
-            LOG.error("查询异常："+e.getMessage());
+            log.error("查询异常："+e.getMessage());
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
+            log.error("服务器异常：",e);
             return R.error();
         }
     }
@@ -272,7 +271,7 @@ public class DemandController {
         }catch (DemandException e){
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
+            log.error("服务器异常：",e);
             return R.error();
         }
     }
@@ -292,7 +291,7 @@ public class DemandController {
         }catch (DemandException e){
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
+            log.error("服务器异常：",e);
             return R.error();
         }
     }
@@ -302,7 +301,7 @@ public class DemandController {
      * @Param [demandEntity]
      * @Date 10:13 2019/7/22
      */
-    @RequestMapping("/demandPlan")
+    @RequestMapping(value = "/demandPlan",method = RequestMethod.POST)
     @ResponseBody
     public R demandPlan(@RequestBody DemandEntity demandEntity){
         try {
@@ -315,7 +314,7 @@ public class DemandController {
         }catch (DemandException e){
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
+            log.error("服务器异常：",e);
             return R.error();
         }
     }
@@ -335,7 +334,7 @@ public class DemandController {
         }catch (DemandException e){
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
+            log.error("服务器异常：",e);
             return R.error();
         }
     }
@@ -345,9 +344,9 @@ public class DemandController {
      * @Param [param]
      * @Date 15:36 2019/7/24
      */
-    @RequestMapping("/demandCancel")
+    @RequestMapping(value = "/demandCancel",method = RequestMethod.POST)
     @ResponseBody
-    public R demandCancel(ParamEntity param){
+    public R demandCancel(@RequestBody ParamEntity param){
         try{
             if(param.getXqbh()==null){
                 return R.error("参数错误");
@@ -357,7 +356,7 @@ public class DemandController {
         }catch (DemandException e){
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){
-            LOG.error("数据库服务器异常："+e.getMessage());
+            log.error("服务器异常：",e);
             return R.error();
         }
     }

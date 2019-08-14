@@ -2,13 +2,16 @@ package com.cetc.plan.utils;
 
 import com.cetc.plan.config.StaticConst;
 import com.cetc.plan.demand.dao.DemandMapper;
+import com.cetc.plan.demand.model.ResultEntry;
 import com.cetc.plan.demand.model.TargetVisitResponse;
 import com.cetc.plan.demand.model.TargetVisitSubEntity;
 import com.cetc.plan.demand.model.demand.CoretargetEntity;
 import com.cetc.plan.demand.model.demand.SateliteEntity;
 import com.cetc.plan.demand.model.demand.TargetInfoEntity;
 import com.cetc.plan.demand.model.param.ParamEntity;
+import com.cetc.plan.demand.service.CalcService;
 import com.cetc.plan.demand.service.DemandRedisService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -18,12 +21,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @Description 需求信息 数据转换、判空工具类 //TODO
+ * @Description 需求信息 数据转换、数据处理类 //TODO
  * @Author kg
  * @Date 10:15 2019/6/20
  **/
+@Slf4j
 @Component
 public class DemandUtils extends StringUtils{
+
 
     @Resource
     StaticConst staticConst;
@@ -414,6 +419,39 @@ public class DemandUtils extends StringUtils{
             }
         }
     }
+
+    /**
+     * @Description //TODO 访问计算进行
+     * @Author kg
+     * @Param [calcService, allStatellites, statelliteMap, visitResult, valmap, listResult, yxqkssj, yxqjssj, returnMap]
+     * @Date 17:43 2019/8/5
+     */
+    public Map<String, Object> visitCalculation(CalcService calcService, List<String> allStatellites, Map<String, List<double[]>> statelliteMap,
+                                                List<TargetVisitResponse> visitResult, List<TargetInfoEntity> valmap, ResultEntry<List<TargetVisitResponse>> listResult,
+                                                String yxqkssj,String yxqjssj,Map<String, Object> returnMap) {
+        for(String wxbs : allStatellites){
+            //生成访问文件
+            ResultEntry<String> resultEntry =  calcService.createVisitCalcRequestFile(wxbs,yxqkssj,yxqjssj,statelliteMap.get(wxbs));
+            if(!resultEntry.getStatus()){
+                ResultEntry result = new ResultEntry(false, resultEntry.getMsg());
+                returnMap.put("status",false);
+                returnMap.put("msg",result.getMsg());
+                return returnMap;
+            }
+            // 执行目标访问服务，返回目标访问响应对象集合
+            listResult = calcService.invokeVisitCalcService(wxbs, valmap,resultEntry.getData());
+            if (listResult.getStatus()) {
+                visitResult.addAll(listResult.getData());
+            } else {
+                ResultEntry result = new ResultEntry(false, listResult.getMsg());
+                returnMap.put("status",false);
+                returnMap.put("msg",result.getMsg());
+                return returnMap;
+            }
+        }
+        return returnMap;
+    }
+
     /**
      * @Description //TODO 处理卫星观测开始时间 跟观测结束时间
      * @Author kg
@@ -439,6 +477,30 @@ public class DemandUtils extends StringUtils{
                 targetVisitResponse.setGckssj(startTime);
                 targetVisitResponse.setGcjssj(endTime);
             }
+        }
+    }
+
+    /**
+     * @Description //TODO 保存元任务信息
+     * @Author kg
+     * @Param [visitResult, demandId]
+     * @Date 8:45 2019/8/6
+     */
+    public void saveMetatask(List<TargetVisitResponse> visitResult, Integer demandId) {
+        demandMapper.demandPlanned(demandId,staticConst.XQXX_XQZT_YCH_ID);
+        log.info("更新需求状态————完成》》》》》》》》》》》》》》》》》》》》》》》》");
+        if(isNotEmpty(visitResult)){
+            //保存元任务信息
+            mergeSatelliteTime(visitResult);
+            demandMapper.saveMetatask(visitResult);
+            log.info("保存元任务信息完成》》》》》》》》》》》》》》》》》》》》》》》》");
+
+            List<TargetVisitSubEntity> targetVisitSubInfo = mergeTargetVsInfo(visitResult,demandId);
+            demandMapper.saveMetataskTargetInfo(targetVisitSubInfo);
+            log.info("保存元任务————坐标信息完成》》》》》》》》》》》》》》》》》》》》》》》》");
+
+            demandMapper.saveMetataskStatus(targetVisitSubInfo);
+            log.info("保存元任务————状态信息完成》》》》》》》》》》》》》》》》》》》》》》》》");
         }
     }
 }

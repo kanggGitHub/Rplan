@@ -407,7 +407,11 @@
         left join XQCH_ZCYRW_MBXX XZM on XZM.YRWBH = XZ.YRWBH
         left join XQCH_XQXX_MBXX XXM on XXM.MBBH = XZM.MBBH
         left join XQCH_XQXX XX on XX.XQBH = XZM.XQBH
-        where XZM.XQBH = #{xqbh}
+        where XZM.XQBH in(
+            <foreach collection="demandsId" item="item" separator=",">
+                #{item}
+            </foreach>
+        )
         order by  XXM.MBBH ASC,XZ.RKSJ DESC,XZ.YRWBH ASC
             <if test="countFlag == null ">
                 limit #{currentPage},#{pageSize}
@@ -449,10 +453,19 @@
     <select id="mergeDefaultTime" resultType="java.lang.Double">
         select  MRGCSC as "mrgcsc" from XDZY_WX_GXCGQGZMS where WXBS = #{wxbs}
     </select>
+    <!--  获取需求时间信息  -->
+    <select id="getDemandsTime" resultType="java.util.Map">
+        select  (to_char(YXQKSSJ, 'yyyy-mm-dd hh24:mi:ss')) as "yxqkssj",/*有效期开始时间*/
+                (to_char(YXQJSSJ, 'yyyy-mm-dd hh24:mi:ss')) as "yxqjssj"/*有效期结束时间*/ from XQCH_XQXX where XQBH = #{demandId}
+    </select>
 
     <!--  更改需求状态————已取消  -->
     <update id="demandCancel">
         update XQCH_XQXX_XQZTXX set XQZT = #{xqzt} where XQBH = #{xqbh}
     </update>
 
+    <!--  更改需求状态————已取消  -->
+    <update id="demandPlanned">
+        update XQCH_XQXX_XQZTXX set XQZT = #{xqzt} where XQBH = #{xqbh}
+    </update>
 </mapper>

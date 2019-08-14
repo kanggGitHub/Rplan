@@ -43,6 +43,8 @@ public class ParamEntity extends PageUtils {
 
     private Integer xqbh=-1;
 
+    private List<Integer> demandsId;
+
     public ParamEntity(){
 
     }

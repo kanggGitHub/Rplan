@@ -125,7 +125,7 @@ private static final long serialVersionUID=1L;
     @TableField("CZR")
     private String czr;
 
-    private List<Integer> denamdsId;
+    private List<Integer> demandsId;
 
     private String totalCount;
 
@@ -151,7 +151,7 @@ private static final long serialVersionUID=1L;
                 ", gxsj=" + gxsj +
                 ", gxyy=" + gxyy +
                 ", czr=" + czr +
-                ", denamdsId=" + denamdsId +
+                ", demandsId=" + demandsId +
                 ", totalcount=" + totalCount +
                 ", taregetinfolist=" + taregetinfolist +
                 '}';

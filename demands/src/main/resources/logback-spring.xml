@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration debug="false">
+<configuration>
     <!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径-->
     <property name="LOGINFO_HOME" value="C:/apache-tomcat/demandsLog/infolog" />
     <property name="LOGERROR_HOME" value="C:/apache-tomcat/demandsLog/errorlog" />
@@ -13,7 +13,7 @@
     <!-- 彩色日志格式 -->
     <property name="CONSOLE_LOG_PATTERN" value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}" />
     <!-- Console 输出设置 -->
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="consoleLog" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>${CONSOLE_LOG_PATTERN}</pattern>
             <charset>utf8</charset>
@@ -30,10 +30,14 @@
     <!--</appender>-->
     <!-- 按照每天生成日志文件 -->
     <!--info-->
-    <appender name="DAYINFO"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="fileInfoLog"  class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--日志文件输出的文件名-->
-            <FileNamePattern>${LOGINFO_HOME}/infoLog%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>${LOGINFO_HOME}/infoLog%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!--日志文件最大的大小-->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <MaxFileSize>50MB</MaxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
             <!--日志文件保留天数-->
             <MaxHistory>30</MaxHistory>
         </rollingPolicy>
@@ -46,16 +50,17 @@
             <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
         </encoder>
-        <!--日志文件最大的大小-->
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>50MB</MaxFileSize>
-        </triggeringPolicy>
+
     </appender>
 
-    <appender name="DAYDEBUG"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="fileDebugLog"  class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--日志文件输出的文件名-->
-            <FileNamePattern>${LOGDEBUG_HOME}/debugLog%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>${LOGDEBUG_HOME}/debugLog%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!--日志文件最大的大小-->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <MaxFileSize>50MB</MaxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
             <!--日志文件保留天数-->
             <MaxHistory>30</MaxHistory>
         </rollingPolicy>
@@ -68,16 +73,16 @@
             <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
         </encoder>
-        <!--日志文件最大的大小-->
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>50MB</MaxFileSize>
-        </triggeringPolicy>
     </appender>
     <!--error appender-->
-    <appender name="DAYERROR"  class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="fileErrorLog"  class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--日志文件输出的文件名-->
-            <FileNamePattern>${LOGERROR_HOME}/errorLog%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>${LOGERROR_HOME}/errorLog%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!--日志文件最大的大小-->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <MaxFileSize>50MB</MaxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
             <!--日志文件保留天数-->
             <MaxHistory>30</MaxHistory>
         </rollingPolicy>
@@ -91,17 +96,13 @@
             <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
         </encoder>
-        <!--日志文件最大的大小-->
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>50MB</MaxFileSize>
-        </triggeringPolicy>
     </appender>
 
     <!-- 日志输出级别 -->
-    <root level="INFO">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="DAYINFO" />
-        <appender-ref ref="DAYDEBUG" />
-        <appender-ref ref="DAYERROR" />
+    <root level="info">
+        <appender-ref ref="consoleLog" />
+        <appender-ref ref="fileInfoLog" />
+        <appender-ref ref="fileDebugLog" />
+        <appender-ref ref="fileErrorLog" />
     </root>
 </configuration>

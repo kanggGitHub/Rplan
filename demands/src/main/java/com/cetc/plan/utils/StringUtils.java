@@ -6,7 +6,7 @@ import java.util.Map;
 
 /**
  * @Classname StringUtils
- * @Description: TODO
+ * @Description: TODO 数据判空工具类
  * @author: kg
  * @Date: 2019/7/19 11:30
  */

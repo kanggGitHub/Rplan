@@ -215,10 +215,24 @@ public interface DemandMapper  extends BaseMapper {
      */
     int demandCancel(Integer xqbh,String xqzt);
     /**
+     * @Description //TODO 取消需求
+     * @Author kg
+     * @Param [xqbh, xqzt]
+     * @Date 9:47 2019/7/26
+     */
+    int demandPlanned(Integer xqbh,String xqzt);
+    /**
      * @Description //TODO 查询卫星的默认观测时长
      * @Author kg
      * @Param [wxbs]
      * @Date 9:47 2019/7/26
      */
     Double mergeDefaultTime(String wxbs);
+    /**
+     * @Description //TODO 获取时间
+     * @Author kg
+     * @Param [demandId]
+     * @Date 17:31 2019/8/5
+     */
+    Map<String, String> getDemandsTime(Integer demandId);
 }
