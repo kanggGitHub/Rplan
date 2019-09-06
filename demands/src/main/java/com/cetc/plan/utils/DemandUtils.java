@@ -439,7 +439,7 @@ public class DemandUtils extends StringUtils{
                 return returnMap;
             }
             // 执行目标访问服务，返回目标访问响应对象集合
-            listResult = calcService.invokeVisitCalcService(wxbs, valmap,resultEntry.getData());
+            listResult = calcService.invokeVisitCalcService(wxbs, valmap,resultEntry.getData(),true);
             if (listResult.getStatus()) {
                 visitResult.addAll(listResult.getData());
             } else {
@@ -487,9 +487,10 @@ public class DemandUtils extends StringUtils{
      * @Date 8:45 2019/8/6
      */
     public void saveMetatask(List<TargetVisitResponse> visitResult, Integer demandId) {
-        demandMapper.demandPlanned(demandId,staticConst.XQXX_XQZT_YCH_ID);
-        log.info("更新需求状态————完成》》》》》》》》》》》》》》》》》》》》》》》》");
         if(isNotEmpty(visitResult)){
+            //如果数据为空则还是未筹划状态
+            demandMapper.demandStatus(demandId,staticConst.XQXX_XQZT_YCH_ID);
+            log.info("更新需求状态————完成》》》》》》》》》》》》》》》》》》》》》》》》");
             //保存元任务信息
             mergeSatelliteTime(visitResult);
             demandMapper.saveMetatask(visitResult);

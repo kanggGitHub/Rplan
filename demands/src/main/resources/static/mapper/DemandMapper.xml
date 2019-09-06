@@ -403,16 +403,16 @@
                    XXM.MBMC as "mbmc",      XXM.MBBH as "mbbh",         XX.XQMC as "xqmc"
             </if>
             from XQCH_ZCYRW XZ
-        left join XDZY_WX_PPGZ XWP on XZ.WXBS = XWP.WXBS
-        left join XQCH_ZCYRW_MBXX XZM on XZM.YRWBH = XZ.YRWBH
-        left join XQCH_XQXX_MBXX XXM on XXM.MBBH = XZM.MBBH
-        left join XQCH_XQXX XX on XX.XQBH = XZM.XQBH
-        where XZM.XQBH in(
-            <foreach collection="demandsId" item="item" separator=",">
-                #{item}
-            </foreach>
-        )
-        order by  XXM.MBBH ASC,XZ.RKSJ DESC,XZ.YRWBH ASC
+            left join XDZY_WX_PPGZ XWP on XZ.WXBS = XWP.WXBS
+            left join XQCH_ZCYRW_MBXX XZM on XZM.YRWBH = XZ.YRWBH
+            left join XQCH_XQXX_MBXX XXM on XXM.MBBH = XZM.MBBH
+            left join XQCH_XQXX XX on XX.XQBH = XZM.XQBH
+            where XZM.XQBH in(
+                <foreach collection="demandsId" item="item" separator=",">
+                    #{item}
+                </foreach>
+            )
+            order by  XXM.MBBH ASC,XZ.RKSJ DESC,XZ.YRWBH ASC
             <if test="countFlag == null ">
                 limit #{currentPage},#{pageSize}
             </if>
@@ -459,13 +459,19 @@
                 (to_char(YXQJSSJ, 'yyyy-mm-dd hh24:mi:ss')) as "yxqjssj"/*有效期结束时间*/ from XQCH_XQXX where XQBH = #{demandId}
     </select>
 
-    <!--  更改需求状态————已取消  -->
-    <update id="demandCancel">
-        update XQCH_XQXX_XQZTXX set XQZT = #{xqzt} where XQBH = #{xqbh}
-    </update>
+    <!--  获取元任务信息————画点/区域条带 -->
+    <select id="getMetatasInfo" resultType="com.cetc.plan.demand.model.TargetVisitResponse">
+        select XZ.YRWBH as "yrwbh",XZ.WXBS as "wxbs",XZ.ZXJD as "zxjd",XZ.ZXWD as "zxwd",XZ.ZSJJD as "zsjjd",XZ.ZSJWD as "zsjwd",XZ.YSJJD as "ysjjd",
+        XZ.YSJWD as "ysjwd",XZ.ZXJJD as "zxjjd",XZ.ZXJWD as "zxjwd",XZ.YXJJD as "yxjjd",XZ.YXJWD as "yxjwd",
+        XZ.GCKSSJ as"gckssj",XZ.GCJSSJ as "gcjssj",XZ.GDQH as "gdqh",XZ.CSJ as "csj"
+        from XQCH_ZCYRW XZ
+        left join XQCH_ZCYRW_MBXX XZM on XZ.YRWBH = XZM.YRWBH
+        left join XQCH_XQXX XX on XZM.XQBH = XX.XQBH
+        where XX.XQBH = #{xqbh}
+    </select>
 
-    <!--  更改需求状态————已取消  -->
-    <update id="demandPlanned">
+    <!--  更改需求状态 -->
+    <update id="demandStatus">
         update XQCH_XQXX_XQZTXX set XQZT = #{xqzt} where XQBH = #{xqbh}
     </update>
 </mapper>

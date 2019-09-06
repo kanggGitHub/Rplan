@@ -3,6 +3,7 @@ package com.cetc.plan.demand.controller;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.cetc.plan.demand.model.TargetVisitResponse;
 import com.cetc.plan.demand.model.demand.DemandEntity;
 import com.cetc.plan.demand.model.demand.SateliteEntity;
 import com.cetc.plan.demand.model.param.ParamEntity;
@@ -339,7 +340,7 @@ public class DemandController {
         }
     }
     /**
-     * @Description //TODO
+     * @Description //TODO 取消需求
      * @Author kg
      * @Param [param]
      * @Date 15:36 2019/7/24
@@ -348,11 +349,34 @@ public class DemandController {
     @ResponseBody
     public R demandCancel(@RequestBody ParamEntity param){
         try{
-            if(param.getXqbh()==null){
+            if(param.getDemandsId()==null){
                 return R.error("参数错误");
             }
             demandService.demandCancel(param);
             return R.ok();
+        }catch (DemandException e){
+            return R.error(e.getCode(),e.getMessage());
+        }catch (Exception e){
+            log.error("服务器异常：",e);
+            return R.error();
+        }
+    }
+
+    /**
+     * @Description //TODO 获取元任务坐标点--地图画点
+     * @Author kg
+     * @Param
+     * @Date 16:30 2019/8/29
+     */
+    @RequestMapping(value = "/getMetataskZB")
+    @ResponseBody
+    public R metataskCoordinate(ParamEntity param){
+        try{
+            if(param.getXqbh()==null||param.getXqbh()==-1){
+                return R.error("参数错误");
+            }
+            Map<String,Object> returnMap = demandService.getMetatasInfo(param);
+            return R.ok().put("data",returnMap);
         }catch (DemandException e){
             return R.error(e.getCode(),e.getMessage());
         }catch (Exception e){

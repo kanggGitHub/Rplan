@@ -144,7 +144,7 @@ public class CalcServiceImpl implements CalcService {
 
     @SuppressWarnings("all")
     @Override
-    public ResultEntry<List<TargetVisitResponse>> invokeVisitCalcService(String wxbs, List<TargetInfoEntity> valmap, String requestFileName) {
+    public ResultEntry<List<TargetVisitResponse>> invokeVisitCalcService(String wxbs, List<TargetInfoEntity> valmap, String requestFileName,boolean isPoint) {
         String prefixStr = "进行访问计算错误，";
 
         //根据卫星标识获取卫星类型
@@ -185,6 +185,13 @@ public class CalcServiceImpl implements CalcService {
                             TargetVisitResponse targetVisitResponse = new TargetVisitResponse();
                             targetVisitResponse.setYrwbh(staticConst.ZCYRW_YRWBH_ID);
                             targetVisitResponse.setMbbh(demandUtils.mergeTargetVS(valmap,arr[2],arr[3],arr[4]));
+                            if(isPoint){
+                                //点坐标
+                                targetVisitResponse.setZxjd(arr[2]);
+                                targetVisitResponse.setZxwd(arr[3]);
+                            }else{
+                                //区域
+                            }
                             targetVisitResponse.setWxbs(arr[4]);
                             targetVisitResponse.setGdqh(arr[5]);
                             targetVisitResponse.setZxdfwsj(String.format("%s-%s-%s %s:%s:%s", arr[6], arr[7], arr[8], arr[9], arr[10], arr[11]));

@@ -40,9 +40,8 @@ public class ParamEntity extends PageUtils {
     //需求列表排序字段 1：倒序 2：正序 默认1
     private Integer sort = 1;
 
-
+    //元任务信息查询
     private Integer xqbh=-1;
-
     private List<Integer> demandsId;
 
     public ParamEntity(){

@@ -1,5 +1,6 @@
 package com.cetc.plan.demand.service;
 
+import com.cetc.plan.demand.model.TargetVisitResponse;
 import com.cetc.plan.demand.model.demand.DemandEntity;
 import com.cetc.plan.demand.model.demand.SateliteEntity;
 import com.cetc.plan.demand.model.param.ParamEntity;
@@ -113,4 +114,13 @@ public interface DemandService {
      */
     @Transactional
     void demandCancel(ParamEntity param)throws DemandException;
+
+    /**
+     * @Description //TODO 获取元任务信息---画点/区域条带
+     * @Author kg
+     * @Param [paramEntity]
+     * @Date 17:38 2019/8/29
+     */
+    @Transactional
+    Map<String,Object> getMetatasInfo(ParamEntity paramEntity);
 }

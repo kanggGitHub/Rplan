@@ -299,7 +299,7 @@ public class DemandServiceImpl extends ServiceImpl implements DemandService {
     public Map<String,Object> getRequirementsList(ParamEntity param) throws DemandException {
         try {
             Integer xqbh = param.getXqbh();
-            if(-1 == xqbh){//获取需求列表
+            if(-1 == xqbh||xqbh == null){//获取需求列表
                 //分页查询
                 log.info("获取需求列表信息==========================");
                 demandUtils.setParamPage(param);
@@ -507,7 +507,6 @@ public class DemandServiceImpl extends ServiceImpl implements DemandService {
             List<Integer> demandsId = param.getDemandsId();
             for(Integer xqbh : demandsId) {
                 //查询需求状态
-
                 String status = demandMapper.getRequirementStatu(xqbh);
                 log.info("查询编号"+xqbh+"的需求状态=============="+status);
                 if (!status.equals(staticConst.XQXX_XQZT_WCH_ID)) {
@@ -515,13 +514,76 @@ public class DemandServiceImpl extends ServiceImpl implements DemandService {
                 }
                 String xqzt = staticConst.XQXX_XQZT_YQX_ID;
                 log.info("执行取消需求状态=============="+xqzt);
-                demandMapper.demandCancel(xqbh, xqzt);
+                demandMapper.demandStatus(xqbh, xqzt);
             }
         }catch (DemandException d){
             throw new DemandException(d.getCode(),d.getMessage());
         }catch (Throwable t){
             log.error("取消失败：",t);
             throw new DemandException(ResultCode.DATABASES_OPERATION_FAIL.getValue(),"取消需求失败: demandCancel");
+        }
+    }
+    /**
+     * @Description //TODO 获取元任务信息---画点/区域条带
+     * @Author kg
+     * @Param [paramEntity]
+     * @Date 17:38 2019/8/29
+     */
+    @Override
+    @SuppressWarnings("all")
+    public Map<String,Object> getMetatasInfo(ParamEntity param) {
+        try {
+            Integer xqbh = param.getXqbh();
+            log.info("获取保存区域目标信息、点目标信息-------上图信息展示》》》》》》》》》》》");
+            //获取需求目标、目标坐标信息
+            List<TargetInfoEntity> targetInfoList = demandMapper.getRequirementZbInfo(xqbh);
+            //分组处理区域目标
+            Map<String, List<TargetInfoEntity>> collect = targetInfoList.stream().collect(Collectors.groupingBy(t -> t.getMblx()));
+            List<TargetInfoEntity> areaList = collect.get(staticConst.MBXX_MBLX_QYMB_ID);
+            int size = targetInfoList.size()-1;
+            TargetInfoEntity targetInfo = null;
+            for(int i = size;i>=0 ;i--){
+                targetInfo = targetInfoList.get(i);
+                if(staticConst.MBXX_MBLX_QYMB_ID.equals(targetInfo.getMblx())){
+                    targetInfoList.remove(targetInfo);
+                }
+            }
+            TargetInfoEntity areatargetInfo = demandUtils.mergeRegion(areaList);
+            //组装返回结果
+            if(areatargetInfo!=null)
+                targetInfoList.add(areatargetInfo);
+            //获取卫星标识并处理
+            List<Map<String,Object>> saltelites = demandMapper.getSatelites(xqbh);
+            demandUtils.mergeSaltelites(targetInfoList,saltelites);
+
+            log.info("获取侦查元任务信息-------上图信息展示》》》》》》》》》》》");
+            //获取侦查元任务信息
+            List<TargetVisitResponse> list = demandMapper.getMetatasInfo(xqbh);
+            //分组处理访问计算结果信息
+            List<Map<String, Object>> computationalResult = new ArrayList<>();
+            if(demandUtils.isNotEmpty(list)) {
+                Map<String, Map<String, List<TargetVisitResponse>>> collectc = list.stream().collect(Collectors.groupingBy(t -> t.getZxjd(), Collectors.groupingBy(t -> t.getZxwd())));
+                //处理分组
+                collectc.forEach((key, value) -> {
+                    value.forEach((key2, value2) -> {
+                        Map<String, Object> computationalMap = new HashMap<String, Object>();
+                        computationalMap.put("zxjd", key);
+                        computationalMap.put("zxwd", key2);
+                        computationalMap.put("list", value2);
+                        computationalResult.add(computationalMap);
+                    });
+                });
+            }
+            //返回封装结果
+            Map<String,Object> returnMap = new HashMap<>();
+            returnMap.put("preserveResults",targetInfoList);
+            returnMap.put("computationalResults",computationalResult);
+            return returnMap;
+        }catch (DemandException d){
+            throw new DemandException(d.getCode(),d.getMessage());
+        }catch (Throwable t){
+            log.error("获取侦查元任务信息失败--上图：",t);
+            throw new DemandException(ResultCode.DATABASES_OPERATION_FAIL.getValue(),"获取侦查元任务信息失败: getMetatasInfo");
         }
     }
 

@@ -207,20 +207,14 @@ public interface DemandMapper  extends BaseMapper {
      * @Date 8:47 2019/7/24
      */
     int saveMetataskStatus(List<TargetVisitSubEntity> subInfo);
+
     /**
-     * @Description //TODO 取消需求
+     * @Description //TODO 更改需求状态
      * @Author kg
      * @Param [xqbh, xqzt]
      * @Date 9:47 2019/7/26
      */
-    int demandCancel(Integer xqbh,String xqzt);
-    /**
-     * @Description //TODO 取消需求
-     * @Author kg
-     * @Param [xqbh, xqzt]
-     * @Date 9:47 2019/7/26
-     */
-    int demandPlanned(Integer xqbh,String xqzt);
+    int demandStatus(Integer xqbh,String xqzt);
     /**
      * @Description //TODO 查询卫星的默认观测时长
      * @Author kg
@@ -235,4 +229,11 @@ public interface DemandMapper  extends BaseMapper {
      * @Date 17:31 2019/8/5
      */
     Map<String, String> getDemandsTime(Integer demandId);
+    /**
+     * @Description //TODO 获取元任务信息---画点/区域条带
+     * @Author kg
+     * @Param [paramEntity]
+     * @Date 17:18 2019/8/29
+     */
+    List<TargetVisitResponse> getMetatasInfo(Integer xqbh);
 }

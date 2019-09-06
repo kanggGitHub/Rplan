@@ -56,6 +56,6 @@ public interface CalcService {
      * @param requestFileName 请求文件
      * @return 结果对象
      */
-    ResultEntry<List<TargetVisitResponse>> invokeVisitCalcService(String wxdh, List<TargetInfoEntity> valmap, String requestFileName);
+    ResultEntry<List<TargetVisitResponse>> invokeVisitCalcService(String wxdh, List<TargetInfoEntity> valmap, String requestFileName,boolean isPoint);
 
 }
