@@ -17,6 +17,7 @@ import com.cetc.plan.demand.service.DemandService;
 import com.cetc.plan.exception.DemandException;
 import com.cetc.plan.utils.DemandUtils;
 import com.cetc.plan.config.ResultCode;
+import io.lettuce.core.RedisException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -76,6 +77,9 @@ public class DemandServiceImpl extends ServiceImpl implements DemandService {
             demandRedisService.setRedisByKeyAndValue("dictionary",collect);
             //初始化信息
             staticConst.setData(list);
+        }catch (RedisException e){
+            log.error("Redis没有开启或没有配置：",e);
+            throw new DemandException(ResultCode.DATABASES_OPERATION_FAIL.getValue(),"更新缓存失败: updataRedis");
         }catch (Exception e){
             log.error("初始化失败：",e);
             throw new DemandException(ResultCode.DATABASES_OPERATION_FAIL.getValue(),"更新缓存失败: updataRedis");

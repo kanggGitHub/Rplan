@@ -47,6 +47,8 @@ public class DemandRedisServiceImpl implements DemandRedisService {
 
     @Override
     public List<?> getListRedisByKey(String key) {
+        Object obj = redisTemplate.opsForList().rightPop(key);
+        if(obj!=null||obj!="") return (List<?>)obj;
         return null;
     }
 

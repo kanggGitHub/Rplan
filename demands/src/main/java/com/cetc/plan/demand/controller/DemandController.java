@@ -3,7 +3,7 @@ package com.cetc.plan.demand.controller;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.cetc.plan.demand.model.TargetVisitResponse;
+import com.cetc.plan.config.ResultCode;
 import com.cetc.plan.demand.model.demand.DemandEntity;
 import com.cetc.plan.demand.model.demand.SateliteEntity;
 import com.cetc.plan.demand.model.param.ParamEntity;
@@ -11,12 +11,10 @@ import com.cetc.plan.demand.service.DemandRedisService;
 import com.cetc.plan.demand.service.DemandService;
 import com.cetc.plan.exception.DemandException;
 import com.cetc.plan.utils.R;
-import com.cetc.plan.config.ResultCode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-
-import org.springframework.stereotype.Controller;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;

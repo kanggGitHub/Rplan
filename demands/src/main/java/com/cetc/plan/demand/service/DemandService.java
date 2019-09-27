@@ -1,6 +1,5 @@
 package com.cetc.plan.demand.service;
 
-import com.cetc.plan.demand.model.TargetVisitResponse;
 import com.cetc.plan.demand.model.demand.DemandEntity;
 import com.cetc.plan.demand.model.demand.SateliteEntity;
 import com.cetc.plan.demand.model.param.ParamEntity;
